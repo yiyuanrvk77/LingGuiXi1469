@@ -1061,7 +1061,7 @@
                     <div class="work-preview">🌐</div>
                     <div class="work-body">
                         <h3>个人品牌在线展示网站</h3>
-                        <a href="https://f5755bad98634a5082e822a325b860aa.app.codebuddy.work" class="work-link" target="_blank">访问链接 →</a>
+                        <a href="https://lingguixi1469.pages.dev" class="work-link" target="_blank">访问链接 →</a>
                         <p>基于个人求职与品牌展示需求，独立策划并搭建的在线动态简历网站，系统呈现数据治理、合规管理、内控体系领域的核心能力与项目成果。</p>
                         <div class="work-tags">
                             <span class="work-tag">个人形象展示</span>
@@ -1074,7 +1074,7 @@
                     <div class="work-preview"></div>
                     <div class="work-body">
                         <h3>家庭生活SOP管理工具</h3>
-                        <a href="https://ea3fe5ef9abb4b04931f6a5995069428.app.codebuddy.work" class="work-link" target="_blank">访问链接 →</a>
+                        <a href="https://lingguixi1469.pages.dev" class="work-link" target="_blank">访问链接 →</a>
                         <p>将合规管理与SOP方法论迁移至日常生活场景，独立设计并开发的家庭生活流程管理工具，通过标准化流程提升家庭事务管理效率。</p>
                         <div class="work-tags">
                             <span class="work-tag">SOP流程固化</span>
@@ -1157,6 +1157,11 @@
         <section class="section-wrapper">
             <h2 class="section-title">相册</h2>
             <div class="gallery-grid">
+                <div class="gallery-item" onclick="openVideoGallery('videos/video-classroom.mp4','教室合影 · 视频')">
+                    <video src="videos/video-classroom.mp4" muted preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+                    <div class="gallery-cap">教室合影 · 视频</div>
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:32px;opacity:0.8;pointer-events:none;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.5);">▶</div>
+                </div>
                 <div class="gallery-item" onclick="openGallery('photos/id-new.jpg','证件照')">
                     <img src="photos/id-new.jpg" alt="证件照" loading="lazy">
                     <div class="gallery-cap">证件照</div>
@@ -1206,6 +1211,7 @@
 
         <div class="gallery-lightbox" id="galleryLightbox" onclick="closeGallery()">
             <img id="galleryLightboxImg" src="" alt="">
+            <video id="galleryLightboxVideo" src="" controls muted style="display:none;max-width:min(90vw, 900px);max-height:80vh;border-radius:14px;border:2px solid rgba(106,180,255,0.4);box-shadow:0 0 50px rgba(106,180,255,0.25);"></video>
             <div class="lb-cap" id="galleryLightboxCap">点击任意处关闭</div>
         </div>
 
@@ -1245,7 +1251,7 @@
             <div class="contact-footer">
                 <a href="tel:18518626150">📞 18518626150</a>
                 <a href="mailto:jinxin_connect@163.com">✉ jinxin_connect@163.com</a>
-                <a href="https://f5755bad98634a5082e822a325b860aa.app.codebuddy.work" target="_blank">🌐 在线简历</a>
+                <a href="https://lingguixi1469.pages.dev" target="_blank">🌐 在线简历</a>
             </div>
             <p>◆ 金鑫 · 数据生命体 ◆ 存在于 0 与 1 之间 ◆ 2026</p>
         </footer>
@@ -1501,11 +1507,26 @@
         function openGallery(src, cap) {
             const lb = document.getElementById('galleryLightbox');
             document.getElementById('galleryLightboxImg').src = src;
+            document.getElementById('galleryLightboxImg').style.display = 'block';
+            const video = document.getElementById('galleryLightboxVideo');
+            video.style.display = 'none';
+            video.pause();
+            document.getElementById('galleryLightboxCap').textContent = (cap || '') + ' · 点击任意处关闭';
+            lb.classList.add('show');
+        }
+        function openVideoGallery(src, cap) {
+            const lb = document.getElementById('galleryLightbox');
+            document.getElementById('galleryLightboxImg').style.display = 'none';
+            const video = document.getElementById('galleryLightboxVideo');
+            video.src = src;
+            video.style.display = 'block';
+            video.play();
             document.getElementById('galleryLightboxCap').textContent = (cap || '') + ' · 点击任意处关闭';
             lb.classList.add('show');
         }
         function closeGallery() {
             document.getElementById('galleryLightbox').classList.remove('show');
+            document.getElementById('galleryLightboxVideo').pause();
         }
 
         // ===== 源界 PPT Modal =====
