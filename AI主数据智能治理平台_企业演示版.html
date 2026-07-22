@@ -202,6 +202,32 @@ tbody tr:hover{background:var(--bg3)}tbody tr.clickable{cursor:pointer}
 .search-hit-reason{font-size:10px;color:var(--s);margin-top:4px;display:flex;flex-wrap:wrap;gap:4px}
 .hot-word{padding:5px 10px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;font-size:11px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:4px}
 .hot-word:hover{border-color:var(--a);color:var(--a)}.hot-word .cnt{color:var(--t3);font-size:10px}
+/* ===== 语义检索增强 ===== */
+.nl-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;min-height:24px}
+.nl-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:default;animation:chipIn .2s ease}
+.nl-chip .remove{cursor:pointer;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:3px;font-size:12px;line-height:1;color:var(--t3);transition:.15s}
+.nl-chip .remove:hover{color:var(--d);background:rgba(239,68,68,.15)}
+.nl-chip-brand{background:rgba(59,130,246,.12);color:var(--pl);border:1px solid rgba(59,130,246,.25)}
+.nl-chip-category{background:rgba(16,185,129,.12);color:var(--s);border:1px solid rgba(16,185,129,.25)}
+.nl-chip-dn{background:rgba(245,158,11,.12);color:var(--w);border:1px solid rgba(245,158,11,.25)}
+.nl-chip-pressure{background:rgba(139,92,246,.12);color:var(--pu);border:1px solid rgba(139,92,246,.25)}
+.nl-chip-material{background:rgba(6,182,212,.12);color:var(--a);border:1px solid rgba(6,182,212,.25)}
+.nl-chip-model{background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.25)}
+.nl-chip-keyword{background:var(--bg);color:var(--t2);border:1px solid var(--bd)}
+.nl-chip-range{background:rgba(239,68,68,.12);color:var(--d);border:1px solid rgba(239,68,68,.25)}
+.nl-chip-exclude{background:rgba(100,116,139,.12);color:var(--t2);border:1px solid var(--bd);text-decoration:line-through}
+@keyframes chipIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.adv-filter-toggle{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;font-size:11px;color:var(--t2);cursor:pointer;border:1px dashed var(--bd);background:0;transition:.15s;margin-left:auto}
+.adv-filter-toggle:hover{color:var(--pl);border-color:var(--p)}
+.adv-filter-panel{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:12px;animation:fadein .25s ease}
+.adv-filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.adv-filter-item label{display:block;font-size:10px;color:var(--t3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.adv-filter-item .adv-input{width:100%;padding:6px 10px;background:var(--bg2);border:1px solid var(--bd);border-radius:6px;color:var(--t);font-size:12px;outline:none;font-family:inherit}
+.adv-filter-item .adv-input:focus{border-color:var(--p)}
+.match-mode{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.match-mode label{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2);cursor:pointer}
+.match-mode input{margin:0}
+.search-status{font-size:11px;color:var(--t3);padding:8px 0;border-bottom:1px dashed var(--bd);margin-bottom:10px}
 @media(max-width:900px){.nav{padding:10px 14px;flex-direction:column;gap:10px;align-items:flex-start}.tabs{width:100%;overflow-x:auto;flex-wrap:nowrap}.wrap{padding:14px}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 ::selection{background:rgba(59,130,246,.35)}
 </style>
@@ -1601,23 +1627,209 @@ window.exportResultCSV = function(type){
   }
 };
 
-/* ===================== 渲染：检索 ===================== */
+/* ===================== 自然语言解析（增强版）==================== */
+function parseNaturalLanguage(q){
+  const text = String(q || "");
+  if(!text) return null;
+  const conditions = [];
+  let remaining = text;
+
+  // 1. 排除条件（"不要..."/"排除..."）
+  const excludePatterns = [
+    {re: /(?:不要|排除|不含|非)(?:的|是)?[\s]*([^\s,，.。;；]{2,30})/g, type:"exclude", label:"排除"}
+  ];
+  for(const {re, type, label} of excludePatterns){
+    let m;
+    while((m = re.exec(text)) !== null){
+      conditions.push({type, label, value:m[1].trim(), display:m[1].trim()});
+      remaining = remaining.replace(m[0], "");
+    }
+  }
+
+  // 2. 品牌
+  const brandHits = new Set();
+  for(const b of BRANDS){
+    const re = new RegExp(b.replace(/[+]/g, "\\+"), "i");
+    if(re.test(text)){ brandHits.add(b); remaining = remaining.replace(re, ""); }
+  }
+  brandHits.forEach(b => conditions.push({type:"brand", label:"品牌", value:b, display:b}));
+
+  // 3. 品类
+  const catKeywords = Object.keys(CATEGORY_PREFIX).sort((a,b) => b.length - a.length);
+  for(const c of catKeywords){
+    if(text.includes(c)){ conditions.push({type:"category", label:"品类", value:c, display:c}); remaining = remaining.replace(c, ""); break; }
+  }
+
+  // 4. 材质（扩展列表）
+  const materialList = ["316L","316","304L","304","2205","C276","铸钢","Q235","35CrMoA","哈氏合金","钛合金","碳化硅","铬钼钢","氟橡胶","丁腈橡胶","硅橡胶","全氟醚","碳钢","不锈钢","合金钢","黄铜","青铜","铝合金","聚四氟乙烯","石墨","橡胶","尼龙"];
+  for(const mat of materialList){
+    if(text.includes(mat)){ conditions.push({type:"material", label:"材质", value:mat, display:mat}); remaining = remaining.replace(mat, ""); }
+  }
+
+  // 5. DN 口径（支持 "DN50-200" 范围）
+  const dnRangeMatch = text.match(/[Dd][Nn]\s*(\d+)\s*[~-—-]\s*(\d+)/);
+  if(dnRangeMatch){ conditions.push({type:"dn_range", label:"口径范围", value:[dnRangeMatch[1], dnRangeMatch[2]], display:"DN"+dnRangeMatch[1]+"~"+dnRangeMatch[2]}); }
+  else {
+    const dnMatch = text.match(/[Dd][Nn]\s*(\d+)/);
+    if(dnMatch){ conditions.push({type:"dn", label:"口径", value:dnMatch[1], display:"DN"+dnMatch[1]}); }
+  }
+  // 寸转mm
+  const inchMatch = text.match(/(\d+\.?\d*)\s*寸/);
+  if(inchMatch){
+    const inchMap = {"0.5":"15","1":"25","1.5":"40","2":"50","3":"80","4":"100","6":"150","8":"200","10":"250","12":"300","14":"350","16":"400"};
+    const mm = inchMap[inchMatch[1]] || String(Math.round(Number(inchMatch[1])*25.4));
+    conditions.push({type:"dn", label:"口径", value:mm, display:"DN"+mm+"("+inchMatch[1]+"寸)"});
+  }
+
+  // 6. 压力范围
+  const pressRangeMatch = text.match(/(\d+\.?\d*)\s*[~-—-]\s*(\d+\.?\d*)\s*[Mm][Pp][Aa]/);
+  if(pressRangeMatch){ conditions.push({type:"pressure_range", label:"压力范围", value:[pressRangeMatch[1]+"MPa", pressRangeMatch[2]+"MPa"], display:pressRangeMatch[1]+"~"+pressRangeMatch[2]+"MPa"}); }
+  else {
+    const pressureMatch = text.match(/(\d+\.?\d*)\s*[Mm][Pp][Aa]/);
+    if(pressureMatch){ conditions.push({type:"pressure", label:"压力", value:pressureMatch[1]+"MPa", display:pressureMatch[1]+"MPa"}); }
+  }
+
+  // 7. 型号
+  const modelMatch = extractModel(text);
+  if(modelMatch){ conditions.push({type:"model", label:"型号", value:modelMatch, display:modelMatch}); }
+
+  // 8. 数量/库存范围
+  const qtyRangeMatch = text.match(/(?:库存|数量|大于|超过|至少|最低|>=?|≥)\s*(\d+)/);
+  if(qtyRangeMatch){ conditions.push({type:"qty_min", label:"最低库存", value:Number(qtyRangeMatch[1]), display:"≥"+qtyRangeMatch[1]}); }
+
+  // 9. 置信度范围
+  const confMatch = text.match(/(?:置信度|可信度|相似度|匹配度).{0,5}(\d{2,3})\s*%?/);
+  if(confMatch){ conditions.push({type:"confidence_min", label:"最低置信度", value:Number(confMatch[1])/100, display:confMatch[1]+"%"}); }
+
+  // 10. 多值OR（"A或B" / "A、B、C"）
+  const orMatch = text.match(/([^,，.。;；]+?)(?:或|或者)([^,，.。;；]+)/);
+  if(orMatch){
+    const left = orMatch[1].trim(); const right = orMatch[2].trim();
+    if(left.length >= 2 && right.length >= 2){
+      conditions.push({type:"or", label:"任一匹配", value:[left, right], display:left+" 或 "+right});
+      remaining = remaining.replace(orMatch[0], "");
+    }
+  }
+
+  // 11. 通用关键词（剩余内容中非停用词）
+  const stopWords = ["找","一下","的","要","是","有","没有","和","或","以及","给我","给我找","查","查一下","搜索","检索","帮我","在","中","里","上","下","个","件","种","类","款","台","套","组"];
+  const tokens = remaining.split(/[\s,，.。;；]/).filter(t => t.length >= 2 && !stopWords.some(sw => t.includes(sw)));
+  if(tokens.length){ conditions.push({type:"keyword", label:"关键词", value:tokens.join(" "), display:tokens.join("、")}); }
+
+  return conditions.length ? conditions : null;
+}
+
+/* 根据当前conditions数组渲染条件chips，支持删除 */
+function renderConditionChips(conditions, containerId){
+  const el = $("#" + containerId);
+  if(!el || !conditions || !conditions.length){ el && (el.style.display="none"); return; }
+  const typeClass = {brand:"nl-chip-brand", category:"nl-chip-category", dn:"nl-chip-dn", dn_range:"nl-chip-dn", pressure:"nl-chip-pressure", pressure_range:"nl-chip-pressure", material:"nl-chip-material", model:"nl-chip-model", keyword:"nl-chip-keyword", exclude:"nl-chip-exclude", or:"nl-chip-keyword", qty_min:"nl-chip-range", confidence_min:"nl-chip-range"};
+  el.innerHTML = `
+    <div style="font-size:11px;color:var(--t3);margin-bottom:6px">🤖 已识别 ${conditions.length} 个检索条件（点击 × 可移除）：</div>
+    <div class="nl-chips">
+      ${conditions.map((c, idx) => `
+        <span class="nl-chip ${typeClass[c.type] || 'nl-chip-keyword'}" title="${esc(c.label)}: ${esc(c.display)}">
+          ${esc(c.label)}: ${esc(c.display)}
+          <span class="remove" onclick="removeSearchCondition(${idx})" title="移除">×</span>
+        </span>
+      `).join("")}
+    </div>
+  `;
+  el.style.display = "block";
+}
+
+/* 移除单个条件后重新搜索 */
+window.removeSearchCondition = function(idx){
+  const conditions = window._currentSearchConditions;
+  if(!conditions || idx < 0 || idx >= conditions.length) return;
+  conditions.splice(idx, 1);
+  window._currentSearchConditions = conditions;
+  renderConditionChips(conditions, "parsedConditions");
+  // 重建查询字符串（用剩余条件）
+  const q = $("#searchInput").value.trim();
+  runSearch(q, conditions.length ? conditions : null);
+};
+
+/* ===================== 渲染：检索（增强版）==================== */
 function renderSearch(){
   const hotWords = countHotSearchWords();
   return `
     <div class="page">
       <div class="card">
         <div class="card-title"><span class="icon" style="background:rgba(139,92,246,.12);color:var(--pu)">🔍</span>智能检索</div>
-        <p style="font-size:11px;color:var(--t3);margin-bottom:10px">基于本批次已批准与待审核主数据，结合同义词、型号、品牌、规格进行加权检索。说明：浏览器环境未集成真实 Embedding 服务，本检索为可解释的本地算法。</p>
+        <p style="font-size:11px;color:var(--t3);margin-bottom:10px">支持自然语言搜索。例如：<em style="color:var(--pl)">"找一下SKF品牌DN200的机械密封，材质要316L的"</em> → 系统将自动识别品牌、品类、规格等条件。</p>
         <div class="input-search" style="margin-bottom:10px">
-          <input type="text" id="searchInput" class="input" placeholder="输入物料描述/型号/品牌，如：SKF 6312 深沟球轴承" onkeydown="if(event.key==='Enter')doSearch()">
+          <input type="text" id="searchInput" class="input" placeholder="输入自然语言描述，如：找一下SKF品牌DN200的机械密封，材质要316L的" oninput="onSearchInput(this)" onkeydown="if(event.key==='Enter')doSearch()">
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-          <button class="btn btn-primary" onclick="doSearch()">🔍 检索</button>
+        <div id="parsedConditions" style="margin-bottom:10px;display:none"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+          <button class="btn btn-primary" onclick="doSearch()">🔍 智能检索</button>
           <button class="btn btn-secondary" onclick="clearSearchHistory()">清空历史</button>
+          <button class="adv-filter-toggle" onclick="toggleAdvFilter()" id="advFilterToggle">⚙ 高级筛选</button>
+        </div>
+        <!-- 高级筛选面板 -->
+        <div id="advFilterPanel" style="display:none">
+          <div class="adv-filter-panel">
+            <div class="adv-filter-row">
+              <div class="adv-filter-item">
+                <label>品类</label>
+                <select class="adv-input" id="advCategory">
+                  <option value="">全部品类</option>
+                  ${Object.keys(CATEGORY_PREFIX).map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="adv-filter-item">
+                <label>品牌</label>
+                <input type="text" class="adv-input" id="advBrand" placeholder="如: SKF" list="advBrandList">
+                <datalist id="advBrandList">${BRANDS.map(b => `<option value="${esc(b)}">`).join("")}</datalist>
+              </div>
+              <div class="adv-filter-item">
+                <label>材质</label>
+                <input type="text" class="adv-input" id="advMaterial" placeholder="如: 316L">
+              </div>
+              <div class="adv-filter-item">
+                <label>口径 (DN)</label>
+                <input type="text" class="adv-input" id="advDN" placeholder="如: 50-200 或 100">
+              </div>
+              <div class="adv-filter-item">
+                <label>压力 (MPa)</label>
+                <input type="text" class="adv-input" id="advPressure" placeholder="如: 1.6">
+              </div>
+              <div class="adv-filter-item">
+                <label>型号</label>
+                <input type="text" class="adv-input" id="advModel" placeholder="如: CM045">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center">
+              <div class="adv-filter-item" style="min-width:140px">
+                <label>最低置信度</label>
+                <select class="adv-input" id="advConfidence">
+                  <option value="0">不限</option>
+                  <option value="0.5">≥50%</option>
+                  <option value="0.6">≥60%</option>
+                  <option value="0.7">≥70%</option>
+                  <option value="0.8">≥80%</option>
+                  <option value="0.9">≥90%</option>
+                </select>
+              </div>
+              <div class="adv-filter-item" style="min-width:140px">
+                <label>排除关键词</label>
+                <input type="text" class="adv-input" id="advExclude" placeholder="多个用逗号分隔">
+              </div>
+              <div style="display:flex;gap:6px;align-items:flex-end;flex:1;justify-content:flex-end">
+                <button class="btn btn-primary btn-sm" onclick="applyAdvFilter()">✓ 应用筛选</button>
+                <button class="btn btn-secondary btn-sm" onclick="resetAdvFilter()">↺ 重置</button>
+              </div>
+            </div>
+            <div class="match-mode">
+              <label><input type="radio" name="matchMode" value="and" checked> 全部满足（AND）</label>
+              <label><input type="radio" name="matchMode" value="or"> 任一满足（OR）</label>
+              <label><input type="radio" name="matchMode" value="fuzzy"> 模糊匹配</label>
+            </div>
+          </div>
         </div>
         <div style="margin-bottom:10px">
-          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">📌 高频搜索词</div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px"> 高频搜索词</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap" id="hotWordsWrap">
             ${hotWords.length ? hotWords.map(w => `<span class="hot-word" onclick="quickSearch('${esc(w.word)}')">${esc(w.word)} <span class="cnt">${w.count}</span></span>`).join("") : `<span style="font-size:11px;color:var(--t3)">暂无搜索历史</span>`}
           </div>
@@ -1641,11 +1853,53 @@ window.doSearch = async function(){
   const q = $("#searchInput").value.trim();
   if(!q){ toast("请输入检索词", "warn"); return; }
   if(!STATE.masters.length && !STATE.reviews.length){ $("#searchResult").innerHTML = emptyState("📁","暂无主数据","请先在「批量接入」上传企业 CSV"); return; }
-  await runSearch(q);
+  // 自然语言解析
+  const parsed = parseNaturalLanguage(q);
+  window._currentSearchConditions = parsed ? [...parsed] : null;
+  renderConditionChips(parsed, "parsedConditions");
+  await runSearch(q, parsed);
   await dbPut("searchHistory", { query: q, created_at: Date.now() });
   STATE.searchHistory = await dbAll("searchHistory");
   $("#hotWordsWrap").innerHTML = countHotSearchWords().map(w => `<span class="hot-word" onclick="quickSearch('${esc(w.word)}')">${esc(w.word)} <span class="cnt">${w.count}</span></span>`).join("");
 };
+
+/* 实时预览解析结果（防抖300ms） */
+let _searchInputTimer = null;
+window.onSearchInput = function(inputEl){
+  clearTimeout(_searchInputTimer);
+  _searchInputTimer = setTimeout(() => {
+    const q = inputEl.value.trim();
+    if(!q || q.length < 2) return;
+    const parsed = parseNaturalLanguage(q);
+    window._currentSearchConditions = parsed ? [...parsed] : null;
+    renderConditionChips(parsed, "parsedConditions");
+  }, 300);
+};
+
+/* 高级筛选面板切换 */
+window.toggleAdvFilter = function(){
+  const panel = $("#advFilterPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+};
+
+/* 应用高级筛选 */
+window.applyAdvFilter = function(){
+  const q = $("#searchInput").value.trim();
+  if(!q && !_hasAdvFilter()){ toast("请先输入搜索词或设置筛选条件", "warn"); return; }
+  doSearch();
+};
+
+/* 重置高级筛选 */
+window.resetAdvFilter = function(){
+  ["advCategory","advBrand","advMaterial","advDN","advPressure","advModel","advExclude"].forEach(id => { const el = $("#"+id); if(el) el.value = ""; });
+  const conf = $("#advConfidence"); if(conf) conf.value = "0";
+  document.querySelectorAll('input[name="matchMode"]').forEach(r => r.checked = r.value === "and");
+};
+
+/* 检查是否有高级筛选条件 */
+function _hasAdvFilter(){
+  return !!($("#advCategory")?.value || $("#advBrand")?.value || $("#advMaterial")?.value || $("#advDN")?.value || $("#advPressure")?.value || $("#advModel")?.value || $("#advExclude")?.value || $("#advConfidence")?.value !== "0");
+}
 
 window.quickSearch = function(q){ $("#searchInput").value = q; doSearch(); };
 window.clearSearchHistory = async function(){
@@ -1654,34 +1908,153 @@ window.clearSearchHistory = async function(){
   STATE.searchHistory = [];
   $("#hotWordsWrap").innerHTML = `<span style="font-size:11px;color:var(--t3)">暂无搜索历史</span>`;
   $("#searchResult").innerHTML = "";
+  $("#parsedConditions").innerHTML = ""; $("#parsedConditions").style.display = "none";
   toast("已清空检索历史", "success");
 };
 
-async function runSearch(q){
+async function runSearch(q, parsed){
   const query = q.toLowerCase().trim();
   const queryStd = standardizeText(query);
-  const qModel = extractModel(query);
-  const qBrand = extractBrand(query);
-  const qDN = extractDN(query);
-  const qPress = extractPressure(query);
-  const qMaterial = extractMaterial(query);
+
+  // 合并高级筛选条件
+  let advConditions = [];
+  const advCategory = $("#advCategory")?.value;
+  const advBrand = $("#advBrand")?.value?.trim();
+  const advMaterial = $("#advMaterial")?.value?.trim();
+  const advDN = $("#advDN")?.value?.trim();
+  const advPressure = $("#advPressure")?.value?.trim();
+  const advModel = $("#advModel")?.value?.trim();
+  const advExclude = $("#advExclude")?.value?.trim();
+  const advConfidence = parseFloat($("#advConfidence")?.value || "0");
+  const matchMode = document.querySelector('input[name="matchMode"]:checked')?.value || "and";
+
+  if(advCategory) advConditions.push({type:"category", label:"品类", value:advCategory, display:advCategory});
+  if(advBrand) advConditions.push({type:"brand", label:"品牌", value:advBrand, display:advBrand});
+  if(advMaterial) advConditions.push({type:"material", label:"材质", value:advMaterial, display:advMaterial});
+  if(advDN){
+    const dnRange = advDN.match(/(\d+)\s*[~-—-]\s*(\d+)/);
+    if(dnRange) advConditions.push({type:"dn_range", label:"口径范围", value:[dnRange[1], dnRange[2]], display:"DN"+dnRange[1]+"~"+dnRange[2]});
+    else { const dnSingle = advDN.match(/(\d+)/); if(dnSingle) advConditions.push({type:"dn", label:"口径", value:dnSingle[1], display:"DN"+dnSingle[1]}); }
+  }
+  if(advPressure){
+    const pRange = advPressure.match(/(\d+\.?\d*)\s*[~-—-]\s*(\d+\.?\d*)/);
+    if(pRange) advConditions.push({type:"pressure_range", label:"压力范围", value:[pRange[1]+"MPa", pRange[2]+"MPa"], display:pRange[1]+"~"+pRange[2]+"MPa"});
+    else { const pSingle = advPressure.match(/(\d+\.?\d*)/); if(pSingle) advConditions.push({type:"pressure", label:"压力", value:pSingle[1]+"MPa", display:pSingle[1]+"MPa"}); }
+  }
+  if(advModel) advConditions.push({type:"model", label:"型号", value:advModel, display:advModel});
+  if(advExclude){
+    const excludes = advExclude.split(/[,，]/).map(s => s.trim()).filter(Boolean);
+    excludes.forEach(e => advConditions.push({type:"exclude", label:"排除", value:e, display:e}));
+  }
+
+  // 合并所有条件
+  const allConditions = [...(parsed || []), ...advConditions];
+
+  // 从 parsed 中提取结构化条件
+  let brandFilter = null, catFilter = null, dnFilter = null, dnMin = null, dnMax = null, pressFilter = null, pressMin = null, pressMax = null;
+  let matFilter = null, modelFilter = null, excludeFilters = [], orFilters = [], qtyMin = null, confMin = null;
+  if(allConditions){
+    for(const c of allConditions){
+      if(c.type === "brand") brandFilter = c.value;
+      if(c.type === "category") catFilter = c.value;
+      if(c.type === "dn") dnFilter = c.value;
+      if(c.type === "dn_range"){ dnMin = Number(c.value[0]); dnMax = Number(c.value[1]); }
+      if(c.type === "pressure") pressFilter = c.value;
+      if(c.type === "pressure_range"){ pressMin = parseFloat(c.value[0]); pressMax = parseFloat(c.value[1]); }
+      if(c.type === "material") matFilter = c.value;
+      if(c.type === "model") modelFilter = c.value;
+      if(c.type === "exclude") excludeFilters.push(c.value);
+      if(c.type === "or") orFilters.push(c.value);
+      if(c.type === "qty_min") qtyMin = c.value;
+      if(c.type === "confidence_min") confMin = c.value;
+    }
+  }
+  // 额外从查询文本提取
+  const qBrand = extractBrand(query); if(!brandFilter && qBrand) brandFilter = qBrand;
+  const qDN = extractDN(query); if(!dnFilter && !dnMin && qDN){ dnFilter = qDN; }
+  const qPress = extractPressure(query); if(!pressFilter && !pressMin && qPress) pressFilter = qPress;
+  const qMaterial = extractMaterial(query); if(!matFilter && qMaterial) matFilter = qMaterial;
+  const qModel = extractModel(query); if(!modelFilter && qModel) modelFilter = qModel;
+
+  // 最低置信度
+  const minConfidence = Math.max(advConfidence, confMin || 0);
+
   const candidates = STATE.masters.slice();
   const results = [];
   for(const m of candidates){
     let score = 0;
     const reasons = [];
     const text = `${m.standard_name || ""} ${m.category || ""} ${m.model || ""} ${m.brand || ""} ${m.dn || ""} ${m.pressure || ""} ${m.material || ""}`.toLowerCase();
-    if(qModel && m.model && qModel.toUpperCase() === m.model.toUpperCase()){ score += 0.5; reasons.push("型号一致"); }
-    if(qBrand && m.brand && qBrand.toLowerCase() === m.brand.toLowerCase()){ score += 0.2; reasons.push("品牌一致"); }
-    if(qDN && m.dn && qDN === m.dn){ score += 0.15; reasons.push("口径一致"); }
-    if(qPress && m.pressure && qPress === m.pressure){ score += 0.15; reasons.push("压力一致"); }
-    if(qMaterial && m.material && qMaterial === m.material){ score += 0.15; reasons.push("材质一致"); }
-    // 关键词 + 同义词
+
+    // 排除条件：包含排除词则跳过
+    if(excludeFilters.length){
+      const hasExclude = excludeFilters.some(e => text.includes(e.toLowerCase()) || (m.standard_name || "").toLowerCase().includes(e.toLowerCase()));
+      if(hasExclude) continue;
+    }
+
+    // AND/OR 模式匹配计数
+    let matchCount = 0;
+    let totalConditions = 0;
+
+    // 结构化条件加分
+    if(modelFilter && m.model){
+      totalConditions++;
+      if(modelFilter.toUpperCase() === (m.model || "").toUpperCase()){ score += 0.5; reasons.push("型号一致"); matchCount++; }
+    }
+    if(brandFilter && m.brand){
+      totalConditions++;
+      if(brandFilter.toLowerCase() === (m.brand || "").toLowerCase()){ score += 0.25; reasons.push("品牌一致"); matchCount++; }
+    }
+    if(dnFilter && m.dn){
+      totalConditions++;
+      if(dnFilter === m.dn){ score += 0.2; reasons.push("口径一致"); matchCount++; }
+    }
+    if(dnMin !== null && dnMax !== null && m.dn){
+      totalConditions++;
+      const dnVal = parseFloat(m.dn);
+      if(!isNaN(dnVal) && dnVal >= dnMin && dnVal <= dnMax){ score += 0.2; reasons.push("口径范围内"); matchCount++; }
+    }
+    if(pressFilter && m.pressure){
+      totalConditions++;
+      if(pressFilter === m.pressure){ score += 0.2; reasons.push("压力一致"); matchCount++; }
+    }
+    if(pressMin !== null && pressMax !== null && m.pressure){
+      totalConditions++;
+      const pVal = parseFloat(m.pressure);
+      if(!isNaN(pVal) && pVal >= pressMin && pVal <= pressMax){ score += 0.2; reasons.push("压力范围内"); matchCount++; }
+    }
+    if(matFilter && m.material){
+      totalConditions++;
+      if(matFilter === m.material){ score += 0.2; reasons.push("材质一致"); matchCount++; }
+    }
+    if(catFilter && m.category){
+      totalConditions++;
+      if(m.category.includes(catFilter) || catFilter.includes(m.category)){ score += 0.3; reasons.push("品类一致"); matchCount++; }
+    }
+    if(qtyMin !== null && m.source_count){
+      totalConditions++;
+      if(m.source_count >= qtyMin){ score += 0.1; reasons.push("库存满足"); matchCount++; }
+    }
+
+    // OR 条件匹配（任一满足即可）
+    if(orFilters.length){
+      for(const [left, right] of orFilters){
+        if(text.includes(left.toLowerCase()) || text.includes(right.toLowerCase())){
+          score += 0.15; reasons.push("多值匹配"); matchCount++; totalConditions++;
+        }
+      }
+    }
+
+    // 最低置信度过滤
+    if(minConfidence > 0 && m.confidence && m.confidence < minConfidence) continue;
+
+    // 关键词 + 同义词匹配
     const terms = queryStd.split(/\s+/).filter(Boolean);
     for(const t of terms){
       if(t.length < 2) continue;
-      if(text.includes(t)){ score += 0.1; }
+      if(text.includes(t)){ score += 0.08; }
     }
+
     // 字符 n-gram 命中
     const stdChars = (m._ext?.standardName || `${m.standard_name}`).toLowerCase().replace(/\s+/g,"");
     let charHits = 0;
@@ -1691,17 +2064,46 @@ async function runSearch(q){
         if(stdChars.includes(g)) charHits++;
       }
     }
-    if(charHits > 0){ score += Math.min(0.2, charHits * 0.005); reasons.push("字符 n-gram 命中"); }
+    if(charHits > 0){ score += Math.min(0.15, charHits * 0.004); reasons.push("字符 n-gram 命中"); }
+
+    // 模糊匹配额外加分
+    if(matchMode === "fuzzy"){
+      // 模糊匹配模式下，降低结构化条件门槛，提高关键词权重
+      if(score > 0) score = score * 1.2 + 0.05;
+    }
+
+    // OR 模式：只要有一个条件满足即可
+    if(matchMode === "or" && matchCount === 0 && score <= 0) continue;
+
+    // AND 模式：至少有一个结构化条件 + 关键词
+    if(matchMode === "and" && totalConditions > 0 && matchCount === 0) continue;
+
     if(score > 0) results.push({ m, score: Math.min(score, 0.99), reasons });
   }
-  results.sort((a,b) => b.score - a.score);
-  const top = results.slice(0, 10);
+
+  // 去重 + 排序
+  const seen = new Set();
+  const uniqueResults = [];
+  for(const r of results){
+    if(!seen.has(r.m.mdm_code)){ seen.add(r.m.mdm_code); uniqueResults.push(r); }
+  }
+  uniqueResults.sort((a,b) => b.score - a.score);
+
+  const top = uniqueResults.slice(0, 20);
   if(!top.length){
     $("#searchResult").innerHTML = emptyState("🔍","未找到相似物料","可调整关键词或在「生命周期」中创建新物料申请");
     return;
   }
+
+  // 搜索状态摘要
+  const matchModeText = matchMode === "and" ? "全部满足" : matchMode === "or" ? "任一满足" : "模糊匹配";
+  const filterSummary = allConditions.length ? `，应用 ${allConditions.length} 个结构化条件（${matchModeText}）` : "";
+
   $("#searchResult").innerHTML = `
-    <div style="font-size:12px;font-weight:700;color:var(--a);margin:14px 0 10px">共 ${results.length} 条匹配，显示 Top ${top.length}</div>
+    <div class="search-status">
+      <span>🔎 共匹配 <strong style="color:var(--pl)">${uniqueResults.length}</strong> 条主数据，显示 Top ${top.length}</span>
+      <span style="color:var(--t3);margin-left:auto">匹配模式: ${matchModeText}${filterSummary}</span>
+    </div>
     ${top.map(r => `
       <div class="search-hit">
         <div class="search-hit-head">
