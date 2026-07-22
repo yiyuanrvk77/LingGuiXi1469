@@ -731,7 +731,7 @@
         /* ===== Character Image ===== */
         #character-img {
             position: fixed;
-            left: 5%;
+            left: 25%;
             top: 50%;
             transform: translateY(-50%);
             height: 75vh;
@@ -1269,8 +1269,8 @@
                 const x = r * Math.sin(phi) * Math.cos(theta);
                 const y = r * Math.sin(phi) * Math.sin(theta);
                 const z = r * Math.cos(phi);
-                // Shift particles to left side to overlap with character image
-                const leftOffset = -15;
+                // Shift particles to right side, avoid overlapping with card
+                const leftOffset = 5;
                 particlePositions[i*3] = x + leftOffset; particlePositions[i*3+1] = y; particlePositions[i*3+2] = z;
                 particleOriginalPositions.push({x: x + leftOffset, y, z});
                 // Scattered: random cloud
