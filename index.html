@@ -865,7 +865,7 @@
 
     <div class="scan-line"></div>
     <div id="canvas-container"></div>
-    <img id="character-img" src="kou.png" alt="数据生命体">
+    <img id="character-img" src="kou.png" alt="数据生命体" onerror="console.error('Character image failed to load:', this.src); this.style.display='none';">
 
     <div class="scan-line"></div>
     <div class="corner-frame tl"></div>
