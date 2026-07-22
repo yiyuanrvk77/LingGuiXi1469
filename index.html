@@ -1377,8 +1377,15 @@
             particlesMaterial.uniforms.uTime.value = time;
         }
 
+        // 页面可见性控制 - 不可见时暂停渲染
+        let isVisible = true;
+        document.addEventListener('visibilitychange', () => {
+            isVisible = !document.hidden;
+        });
+
         function animate() {
             requestAnimationFrame(animate); 
+            if (!isVisible) return; // 页面不可见时跳过渲染
             const time = clock.getElapsedTime();
             updateParticles(time, 0);
             particlesMesh.rotation.y = time * 0.02; 
