@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI主数据智能治理平台 · 企业演示版</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#1a56db;--pl:#3b82f6;--a:#06b6d4;--s:#10b981;--w:#f59e0b;
+  --d:#ef4444;--pu:#8b5cf6;--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
+  --t:#f1f5f9;--t2:#94a3b8;--t3:#64748b;--bd:#334155;--r:12px;
+}
+html,body{height:100%}
+body{font-family:'Segoe UI','Microsoft YaHei',PingFang SC,Helvetica,sans-serif;background:var(--bg);color:var(--t);min-height:100vh;font-size:13px;line-height:1.5}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+.nav{background:linear-gradient(135deg,#0f2044,#0f172a);border-bottom:1px solid var(--bd);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
+.logo{display:flex;align-items:center;gap:12px}.logo-i{width:40px;height:40px;background:linear-gradient(135deg,var(--p),var(--a));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff}
+.logo-t h1{font-size:16px;font-weight:800;color:#fff}.logo-t p{font-size:10px;color:var(--t3);letter-spacing:1.2px}
+.nav-right{display:flex;align-items:center;gap:14px}
+.engine-status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--s);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);padding:6px 12px;border-radius:20px}
+.engine-status.idle{color:var(--t3);background:rgba(148,163,184,.06);border-color:rgba(148,163,184,.2)}
+.engine-status .dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 currentColor}50%{opacity:.7;box-shadow:0 0 0 6px transparent}}
+.tabs{display:flex;gap:2px;flex-wrap:wrap}
+.tab{padding:7px 12px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--t2);transition:.15s;border:none;background:0;font-family:inherit}
+.tab:hover{background:var(--bg2);color:var(--t)}.tab.on{background:var(--p);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(26,86,219,.4)}
+.wrap{max-width:1440px;margin:0 auto;padding:18px 24px}
+.page{display:none;animation:fadein .25s ease}.page.on{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-title .icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.card-actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn{padding:7px 14px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(--p),var(--pl));color:#fff}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,86,219,.35)}
+.btn-secondary{background:var(--bg);border:1px solid var(--bd);color:var(--t2)}
+.btn-secondary:hover:not(:disabled){border-color:var(--p);color:var(--pl)}
+.btn-success{background:linear-gradient(135deg,#059669,#10b981);color:#fff}
+.btn-warn{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff}
+.btn-danger{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff}
+.btn-ghost{background:transparent;color:var(--t2);border:1px dashed var(--bd)}
+.btn-ghost:hover:not(:disabled){color:var(--t);border-color:var(--t2)}
+.btn-sm{padding:4px 9px;font-size:11px}.btn-lg{padding:10px 18px;font-size:13px}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.3px;line-height:1.5}
+.tag-merge{background:rgba(6,182,212,.15);color:#22d3ee;border:1px solid rgba(6,182,212,.3)}
+.tag-warn{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.tag-new{background:rgba(139,92,246,.15);color:#c084fc;border:1px solid rgba(139,92,246,.3)}
+.tag-ok{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+.tag-err{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.tag-info{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+.tag-muted{background:rgba(148,163,184,.1);color:var(--t2);border:1px solid rgba(148,163,184,.2)}
+.input,.select,.textarea{width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--bd);border-radius:7px;color:var(--t);font-size:12px;outline:none;font-family:inherit;transition:.15s}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--p)}.textarea{min-height:60px;resize:vertical}
+.input-search{position:relative}.input-search::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.5}
+.input-search input{padding-left:34px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--bd);border-radius:10px;max-height:520px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}thead{position:sticky;top:0;background:var(--bg2);z-index:5}
+th{padding:10px;text-align:left;font-weight:700;color:var(--t2);font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid rgba(51,65,85,.4);vertical-align:top}
+tbody tr:hover{background:var(--bg3)}tbody tr.clickable{cursor:pointer}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.k-blue::before{background:linear-gradient(90deg,var(--pl),var(--p))}
+.kpi.k-green::before{background:linear-gradient(90deg,#34d399,var(--s))}
+.kpi.k-amber::before{background:linear-gradient(90deg,#fbbf24,var(--w))}
+.kpi.k-cyan::before{background:linear-gradient(90deg,#22d3ee,var(--a))}
+.kpi.k-violet::before{background:linear-gradient(90deg,#a78bfa,var(--pu))}
+.kpi.k-rose::before{background:linear-gradient(90deg,#f87171,var(--d))}
+.kpi-label{font-size:11px;color:var(--t2);margin-bottom:4px}.kpi-value{font-size:22px;font-weight:800;line-height:1.1}
+.kpi-sub{font-size:10px;color:var(--t3);margin-top:3px}.kpi-emoji{position:absolute;right:14px;top:12px;font-size:20px;opacity:.15}
+.upload-zone{border:2px dashed var(--bd);border-radius:var(--r);padding:48px 36px;text-align:center;transition:.2s;cursor:pointer;position:relative;background:linear-gradient(180deg,rgba(26,86,219,.03),transparent)}
+.upload-zone:hover{border-color:var(--p);background:rgba(26,86,219,.07);transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,86,219,.15)}
+.upload-zone.drag{border-color:var(--a);background:rgba(6,182,212,.1);box-shadow:0 0 0 3px rgba(6,182,212,.2)}
+.upload-zone .ic{font-size:48px;opacity:.5;margin-bottom:10px;transition:.2s}
+.upload-zone:hover .ic{opacity:.85;transform:scale(1.05)}
+.upload-zone .t1{font-size:15px;color:var(--t);margin-bottom:6px;font-weight:600}
+.upload-zone .t2{font-size:11px;color:var(--t3)}
+.upload-zone input[type="file"]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.progress{margin:14px 0;padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--bd);display:none}
+.progress.show{display:block}
+.progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px}
+.progress-row .count{font-weight:700;color:var(--pl)}
+.progress-bar{background:var(--bg3);border-radius:6px;height:18px;overflow:hidden;position:relative}
+.progress-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--p),var(--pl));transition:width .3s ease;width:0}
+.progress-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.progress-status{margin-top:6px;font-size:11px;color:var(--t3)}
+.pipeline{display:flex;gap:4px;margin:14px 0;flex-wrap:wrap}
+.step{flex:1;min-width:90px;text-align:center;padding:8px 4px;border-radius:8px;font-size:10px;background:var(--bg);border:1px solid var(--bd);color:var(--t3);transition:.2s}
+.step.done{background:rgba(16,185,129,.1);border-color:var(--s);color:var(--s)}
+.step.cur{background:rgba(26,86,219,.15);border-color:var(--p);color:var(--pl);font-weight:700;animation:glow 1.2s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(26,86,219,.3)}50%{box-shadow:0 0 10px 1px rgba(26,86,219,.2)}}
+.step .num{font-size:13px;font-weight:800;display:block;margin-bottom:1px}
+.empty{padding:48px 24px;text-align:center;color:var(--t3)}
+.empty .ic{font-size:48px;opacity:.4;margin-bottom:10px}
+.empty .title{font-size:14px;font-weight:600;color:var(--t);margin-bottom:6px}
+.empty .desc{font-size:11px;opacity:.7;max-width:420px;margin:0 auto}
+.review-card{background:var(--bg);border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;padding:14px}
+.review-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.review-meta{flex:1;min-width:0}
+.review-name{font-size:13px;font-weight:700;margin-bottom:4px;word-break:break-all}
+.review-code{font-family:Consolas,monospace;font-size:11px;color:var(--a);font-weight:700;margin-bottom:6px}
+.review-desc{font-size:11px;color:var(--t2);margin-bottom:6px;line-height:1.6}
+.review-reason{font-size:11px;color:var(--w);background:rgba(245,158,11,.08);padding:6px 10px;border-radius:6px;border-left:3px solid var(--w);margin:6px 0}
+.review-conf{display:flex;align-items:center;gap:10px}
+.confidence-ring{position:relative;width:50px;height:50px;flex-shrink:0}
+.confidence-ring svg{transform:rotate(-90deg)}
+.confidence-ring .bg{fill:none;stroke:var(--bd);stroke-width:4}
+.confidence-ring .fg{fill:none;stroke-width:4;stroke-linecap:round}
+.confidence-ring .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.review-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.review-actions .btn{flex:1;min-width:80px;justify-content:center}
+.review-detail{margin-top:10px;padding-top:10px;border-top:1px dashed var(--bd)}
+.review-detail summary{cursor:pointer;font-size:11px;color:var(--t2);user-select:none;padding:4px 0}
+.review-detail summary:hover{color:var(--pl)}
+.review-detail table{margin-top:8px;font-size:11px}
+.q-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px}
+.q-card{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.q-ring{position:relative;width:56px;height:56px;flex-shrink:0}
+.q-ring svg{transform:rotate(-90deg)}
+.q-ring .bg{fill:none;stroke:var(--bd);stroke-width:5}
+.q-ring .fg{fill:none;stroke-width:5;stroke-linecap:round}
+.q-ring .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.q-info{flex:1;min-width:0}
+.q-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.q-dim{font-size:11px;color:var(--t3)}
+.q-list{margin-top:8px}
+.q-item{padding:8px 12px;border-radius:6px;margin-bottom:6px;font-size:11px;border-left:3px solid var(--bd);background:var(--bg)}
+.q-item.high{border-color:var(--d);background:rgba(239,68,68,.05)}
+.q-item.mid{border-color:var(--w);background:rgba(245,158,11,.05)}
+.q-item.low{border-color:var(--pl);background:rgba(59,130,246,.05)}
+.q-item .q-act{color:var(--t2);font-size:11px;margin-top:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:960px){.two{grid-template-columns:1fr}}
+.chart-card{background:linear-gradient(180deg,var(--bg2),rgba(30,41,59,.55));border:1px solid var(--bd);border-radius:10px;padding:10px 12px;position:relative;transition:.2s;overflow:hidden}
+.chart-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pl),var(--a),var(--s));opacity:.55}
+.chart-card .chart-svg{max-height:180px}
+.chart-title{font-size:11px;color:var(--t);margin-bottom:6px;font-weight:700;display:flex;align-items:center;gap:6px}
+.chart-title .badge{padding:2px 8px;border-radius:10px;background:rgba(59,130,246,.15);color:var(--pl);font-size:10px;font-weight:700}
+.chart-svg{width:100%;height:auto;display:block}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chart-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;font-size:10px;color:var(--t2)}
+.chart-legend .lg{display:flex;align-items:center;gap:5px}
+.chart-legend .lg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+@media(max-width:960px){.chart-grid{grid-template-columns:1fr}}
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--bd)}
+.tl-item{position:relative;margin-bottom:14px;padding-left:14px}
+.tl-item::before{content:'';position:absolute;left:-21px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--p);border:2px solid var(--bg2);box-sizing:border-box}
+.tl-item.ok::before{background:var(--s)}.tl-item.reject::before{background:var(--d)}.tl-item.pending::before{background:var(--w)}
+.tl-time{font-size:10px;color:var(--t3);margin-bottom:2px}.tl-text{font-size:12px;color:var(--t)}.tl-meta{font-size:11px;color:var(--t2);margin-top:3px}
+.lc-steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;padding:14px;background:var(--bg);border-radius:10px}
+.lc-step{padding:10px 14px;border-radius:8px;background:var(--bg2);border:1px solid var(--bd);font-size:11px;color:var(--t2);text-align:center;flex:1;min-width:90px}
+.lc-step.ok{background:rgba(16,185,129,.1);border-color:var(--s);color:var(--s)}
+.lc-step.cur{background:rgba(26,86,219,.15);border-color:var(--p);color:var(--pl);font-weight:700}
+.lc-step.reject{background:rgba(239,68,68,.1);border-color:var(--d);color:var(--d)}
+.lc-step .num{display:block;font-size:14px;font-weight:800;margin-bottom:1px}
+.lc-arrow{color:var(--t3);font-size:14px}
+.role-tabs{display:flex;gap:2px;background:var(--bg);border-radius:8px;padding:4px;margin-bottom:12px;width:fit-content}
+.role-tab{padding:6px 14px;border-radius:6px;font-size:11px;color:var(--t2);cursor:pointer;border:none;background:0;font-family:inherit}
+.role-tab.on{background:var(--p);color:#fff;font-weight:600}
+.dist-target-list{display:flex;flex-direction:column;gap:6px}
+.dist-target{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--bd)}
+.dist-target input{margin:0}.dist-target .sys-name{flex:1;font-size:12px}.dist-target .sys-stats{font-size:10px;color:var(--t3)}
+.dist-log{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;font-size:11px}
+.dist-log .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dist-log .dot.ok{background:var(--s)}.dist-log .dot.err{background:var(--d)}.dist-log .dot.pending{background:var(--w)}
+.dist-log .info{flex:1;min-width:0;word-break:break-all}.dist-log .time{color:var(--t3);font-size:10px;flex-shrink:0}
+.kb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px}
+.kb-stat{padding:14px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;position:relative;overflow:hidden}
+.kb-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kb-stat.k1::before{background:var(--pl)}.kb-stat.k2::before{background:var(--s)}.kb-stat.k3::before{background:var(--w)}.kb-stat.k4::before{background:var(--a)}.kb-stat.k5::before{background:var(--pu)}.kb-stat.k6::before{background:var(--d)}
+.kb-stat .lbl{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kb-stat .val{font-size:24px;font-weight:800}.kb-stat .hit{font-size:10px;color:var(--s);margin-top:2px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:22px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.modal-title .close{cursor:pointer;color:var(--t2);font-size:18px;padding:0 6px}.modal-title .close:hover{color:var(--t)}
+#toast-wrap{position:fixed;top:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:8px;max-width:360px}
+.toast{padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.4);animation:slidein .25s ease;display:flex;align-items:center;gap:8px}
+.toast.success{background:#059669;color:#fff}.toast.error{background:#dc2626;color:#fff}.toast.warn{background:#d97706;color:#fff}.toast.info{background:var(--p);color:#fff}
+@keyframes slidein{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.field-mapping{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px}
+.field-map-item{padding:10px;background:var(--bg);border:1px solid var(--bd);border-radius:8px}
+.field-map-item .raw{font-size:11px;color:var(--t3);margin-bottom:4px;font-family:Consolas,monospace;word-break:break-all}
+.field-map-item .mapped{font-size:12px;color:var(--s);font-weight:700;display:flex;align-items:center;gap:6px}
+.field-map-item .mapped.unmapped{color:var(--d)}
+.field-map-item select{width:100%;margin-top:6px;font-size:11px;padding:5px 8px}
+.preview-table{max-height:280px;font-size:11px}
+.search-hit{padding:10px 12px;background:var(--bg2);border-radius:8px;margin-bottom:6px;border-left:3px solid var(--bd);transition:.15s}
+.search-hit:hover{border-left-color:var(--pl)}
+.search-hit-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px}
+.search-hit-code{font-family:Consolas,monospace;font-size:11px;color:var(--a);font-weight:700}
+.search-hit-score{font-size:11px;font-weight:700}
+.search-hit-name{font-size:13px;font-weight:600;margin-bottom:3px;word-break:break-all}
+.search-hit-meta{font-size:10px;color:var(--t3)}
+.search-hit-reason{font-size:10px;color:var(--s);margin-top:4px;display:flex;flex-wrap:wrap;gap:4px}
+.hot-word{padding:5px 10px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;font-size:11px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:4px}
+.hot-word:hover{border-color:var(--a);color:var(--a)}.hot-word .cnt{color:var(--t3);font-size:10px}
+@media(max-width:900px){.nav{padding:10px 14px;flex-direction:column;gap:10px;align-items:flex-start}.tabs{width:100%;overflow-x:auto;flex-wrap:nowrap}.wrap{padding:14px}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+::selection{background:rgba(59,130,246,.35)}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="logo"><div class="logo-i">MD</div><div class="logo-t"><h1>AI主数据智能治理平台</h1><p>ENTERPRISE MDM · 企业演示版 · 本机运行</p></div></div>
+  <div class="nav-right">
+    <div class="engine-status idle" id="engineStatus"><span class="dot"></span><span id="engineStatusText">等待接入数据</span></div>
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-page="ingest">📥 批量接入</button>
+      <button class="tab" data-page="dash">📊 总览</button>
+      <button class="tab" data-page="kb">📚 知识库</button>
+      <button class="tab" data-page="search">🔍 语义检索</button>
+      <button class="tab" data-page="review">⚠️ 审核</button>
+      <button class="tab" data-page="quality">📈 数据质量</button>
+      <button class="tab" data-page="lifecycle">🔄 生命周期</button>
+      <button class="tab" data-page="distribute">📤 分发中心</button>
+    </div>
+  </div>
+</nav>
+<div class="wrap" id="app"></div>
+<div id="toast-wrap"></div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalBody"></div></div>
+
+<script>
+/* ============================================================
+   AI 主数据智能治理平台 · 企业演示版
+   单文件离线实现：所有数据存储在浏览器 IndexedDB
+   ============================================================ */
+
+"use strict";
+
+/* ===================== 工具函数 ===================== */
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+const esc = (s) => String(s == null ? "" : s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const fmtPct = (x) => (Math.round((Number(x)||0) * 1000) / 10).toFixed(1) + "%";
+const fmtNum = (x) => (Number(x) || 0).toLocaleString("zh-CN");
+const fmtDate = (ts) => {
+  if(!ts) return "";
+  const d = new Date(ts);
+  return d.toLocaleString("zh-CN", { hour12: false });
+};
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+function toast(msg, type="info", timeout=2800){
+  const wrap = $("#toast-wrap");
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  const icons = { success:"✓", error:"✕", warn:"⚠", info:"ℹ" };
+  el.innerHTML = `<span>${icons[type] || "ℹ"}</span><span>${esc(msg)}</span>`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; el.style.transform = "translateX(20px)"; setTimeout(() => el.remove(), 200); }, timeout);
+}
+
+function showModal(html, onMount){
+  const ov = $("#modalOverlay"), mb = $("#modalBody");
+  mb.innerHTML = html;
+  ov.classList.add("show");
+  mb.querySelectorAll(".close, [data-close]").forEach(el => el.addEventListener("click", () => ov.classList.remove("show")));
+  if(typeof onMount === "function") onMount(mb);
+}
+function hideModal(){ $("#modalOverlay").classList.remove("show"); }
+
+/* ===================== CSV 解析 ===================== */
+function decodeCSVBuffer(buf){
+  const encodings = ["utf-8", "gbk", "gb18030"];
+  for(const enc of encodings){
+    try {
+      const dec = new TextDecoder(enc, { fatal: true });
+      const text = dec.decode(buf);
+      if(text && !text.includes("�")) return { text, encoding: enc };
+    } catch(e){}
+  }
+  // fallback to gbk without fatal
+  try { return { text: new TextDecoder("gbk").decode(buf), encoding: "gbk" }; } catch(e){}
+  return { text: new TextDecoder("utf-8").decode(buf), encoding: "utf-8" };
+}
+
+function parseCSV(text){
+  const rows = [];
+  let i = 0, field = "", row = [], inQuote = false;
+  text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  while(i < text.length){
+    const c = text[i];
+    if(inQuote){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i += 2; continue; }
+        inQuote = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if(c === '"'){ inQuote = true; i++; continue; }
+    if(c === ","){ row.push(field); field = ""; i++; continue; }
+    if(c === "\n"){ row.push(field); field = ""; rows.push(row); row = []; i++; continue; }
+    field += c; i++;
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  // 删除尾部空行
+  while(rows.length && rows[rows.length-1].every(c => !c.trim())) rows.pop();
+  return rows;
+}
+
+const FIELD_ALIASES = {
+  material_code: ["物料编码","编码","物料号","物料代码","material_code","material code","code","item_code","part_number","sku"],
+  system_source: ["系统来源","来源系统","来源","system","system_source","source_system","system name"],
+  material_name: ["物料名称","物料名","名称","material_name","material name","name","item_name","title"],
+  description:   ["物料描述","描述","说明","description","desc","material_description","item_desc","spec"],
+  category:      ["物料分类","分类","品类","category","class","material_category","item_category"],
+  unit:          ["计量单位","单位","unit","uom","unit_of_measure","measure_unit"],
+  create_time:   ["创建时间","创建日期","时间","日期","created_at","create_time","created","date","timestamp"]
+};
+
+function mapFields(headers){
+  const mapping = {};
+  const used = new Set();
+  for(const [field, aliases] of Object.entries(FIELD_ALIASES)){
+    let matched = null;
+    for(const h of headers){
+      const norm = String(h || "").trim().toLowerCase().replace(/\s+/g," ");
+      if(!norm) continue;
+      for(const alias of aliases){
+        const a = String(alias).trim().toLowerCase().replace(/\s+/g," ");
+        if(norm === a || norm.includes(a)){ matched = h; break; }
+      }
+      if(matched) break;
+    }
+    if(matched){ mapping[field] = matched; used.add(matched); }
+  }
+  // 未映射字段原样保留
+  mapping._unmapped = headers.filter(h => !used.has(h));
+  return mapping;
+}
+
+function buildRow(rawRow, headers, mapping){
+  const out = {};
+  for(const [field, header] of Object.entries(mapping)){
+    if(field.startsWith("_")) continue;
+    const idx = headers.indexOf(header);
+    out[field] = idx >= 0 ? String(rawRow[idx] || "").trim() : "";
+  }
+  // raw 行也保留
+  out._raw = rawRow;
+  return out;
+}
+
+/* ===================== NLP 抽取与同义词 ===================== */
+const SYNONYMS = {
+  "机械密封": ["机封","端面密封","密封","mechanical seal","face seal"],
+  "轴承": ["bearing","滚动轴承","ball bearing","roller bearing"],
+  "闸阀": ["阀门","gate valve","闸伐","闸板阀"],
+  "O型圈": ["O-Ring","o ring","o-ring","密封圈","O型密封圈","O圈"],
+  "法兰": ["flange","法兰盖","盲板","盲法兰","盲板法兰"],
+  "螺栓": ["螺柱","stud bolt","hex bolt","bolt","双头螺栓","六角螺栓"],
+  "润滑油": ["润滑脂","液压油","齿轮油","柴油机油","lubricant","lubricating oil","grease","oil"],
+  "滤芯": ["滤材","过滤器","filter","filter element","滤清器"],
+  "压力变送器": ["变送器","transmitter","pressure transmitter","差压变送器"],
+  "防爆电机": ["电机","motor","ex motor","explosion-proof motor"],
+  "304": ["304ss","304不锈钢","cf8","sus304"],
+  "304L": ["304l","304l不锈钢","cf3"],
+  "316L": ["316ss","316l不锈钢","316l","sus316l"],
+  "316": ["316ss","sus316"],
+  "2205": ["2205","双相钢","duplex"],
+  "C276": ["c276","哈氏合金","hastelloy"],
+  "铸钢": ["铸钢","碳钢","wcb","cast steel","carbon steel"],
+  "氟橡胶": ["氟橡胶","fkm","viton","氟胶"],
+  "丁腈橡胶": ["丁腈","丁腈橡胶","nbr","nitrile"],
+  "硅橡胶": ["硅胶","硅橡胶","vmq","silicone"],
+  "全氟醚": ["全氟醚","ffkm","kalrez","perfluoroelastomer"],
+  "碳化硅": ["sic","碳化硅","silicon carbide"],
+  "钛合金": ["钛","钛合金","ti","titanium"],
+  "铬钼钢": ["铬钼钢","crmo"],
+  "Q235": ["q235","q235b"],
+  "35CrMoA": ["35crmo","35crmoa"],
+  "1.6MPa": ["1.6mpa","pn16","16公斤","16bar","class150","150lb","150#"],
+  "2.5MPa": ["2.5mpa","pn25","25公斤","25bar","class300","300#"],
+  "4.0MPa": ["4.0mpa","pn40","40公斤","40bar","class600","600#"],
+  "10MPa": ["10mpa","pn100","100公斤","100bar"],
+  "0.6MPa": ["0.6mpa","6bar","class150","150lb"],
+  "1.0MPa": ["1.0mpa","10bar","pn10"],
+  "6.0MPa": ["6.0mpa","60bar","class600"],
+  "25MPa": ["25mpa","250bar","250#"]
+};
+
+const BRANDS = ["SKF","FAG","NSK","NTN","Koyo","INA","Timken",
+  "罗斯蒙特","Rosemount","横河","Yokogawa","霍尼韦尔","Honeywell",
+  "E+H","Endress+Hauser","西门子","Siemens","ABB","Festo","SMC",
+  "壳牌","Shell","美孚","Mobil","长城","Great Wall","昆仑","Kunlun"];
+
+const CATEGORY_PREFIX = {
+  "机械密封":"MDM-S","泵用机械密封":"MDM-S","机械密封-集装":"MDM-S","机械密封-波纹管":"MDM-S","机械密封-弹簧":"MDM-S","机械密封-双端面":"MDM-S",
+  "轴承":"MDM-B","深沟球轴承":"MDM-B","滚动轴承":"MDM-B",
+  "闸阀":"MDM-V","楔式闸阀":"MDM-V","电动闸阀":"MDM-V","闸阀-电动":"MDM-V",
+  "O型圈":"MDM-O","氟橡胶O型圈":"MDM-O","O型圈-氟胶":"MDM-O",
+  "法兰":"MDM-F","对焊法兰":"MDM-F","平焊法兰":"MDM-F","盲板法兰":"MDM-F","盲法兰":"MDM-F",
+  "压力变送器":"MDM-T","差压变送器":"MDM-T",
+  "防爆电机":"MDM-M","电机":"MDM-M",
+  "滤芯":"MDM-L","液压油滤芯":"MDM-L","空气滤芯":"MDM-L","聚结滤芯":"MDM-L","天然气滤芯":"MDM-L","水滤芯":"MDM-L",
+  "润滑油":"MDM-O","抗磨液压油":"MDM-O","液压油":"MDM-O","齿轮油":"MDM-O","柴油机油":"MDM-O","合成压缩机油":"MDM-O","锂基脂":"MDM-O",
+  "螺栓":"MDM-N","双头螺栓":"MDM-N","六角螺栓":"MDM-N","螺柱":"MDM-N","高强度螺栓":"MDM-N"
+};
+
+const CANONICAL_CATEGORY = {
+  "机械密封":"机械密封","泵用机械密封":"机械密封","机封":"机械密封","端面密封":"机械密封","波纹管机封":"机械密封","集装式机封":"机械密封","弹簧机封":"机械密封","双端面机封":"机械密封","哈氏合金机封":"机械密封","高温机封":"机械密封","钛合金机封":"机械密封","硬质合金机封":"机械密封","sealing":"机械密封",
+  "轴承":"轴承","bearing":"轴承","滚动轴承":"轴承","深沟球轴承":"轴承","球轴承":"轴承","roller bearing":"轴承",
+  "闸阀":"闸阀","gate valve":"闸阀","gate":"闸阀","闸伐":"闸阀","楔式闸阀":"闸阀","电动闸阀":"闸阀","电动闸":"闸阀","不锈钢闸阀":"闸阀","铸钢闸阀":"闸阀","高温闸阀":"闸阀","铸钢闸":"闸阀",
+  "O型圈":"O型圈","O-Ring":"O型圈","oring":"O型圈","o ring":"O型圈","O型密封圈":"O型圈","密封圈":"O型圈","氟胶O型圈":"O型圈","氟胶O圈":"O型圈","丁腈O型圈":"O型圈","全氟醚O型圈":"O型圈","硅胶O型圈":"O型圈",
+  "法兰":"法兰","flange":"法兰","对焊法兰":"法兰","平焊法兰":"法兰","盲板法兰":"法兰","盲法兰":"法兰","盲板":"法兰","对焊":"法兰","平焊":"法兰","316L对焊法兰":"法兰","304L对焊法兰":"法兰","Q235平焊法兰":"法兰","304平焊法兰":"法兰",
+  "压力变送器":"压力变送器","变送器":"压力变送器","transmitter":"压力变送器","pressure transmitter":"压力变送器","横河压力变送器":"压力变送器","霍尼韦尔变送器":"压力变送器","西门子压力变送器":"压力变送器","E+H变送器":"压力变送器","横河隔膜变送器":"压力变送器","罗斯蒙特压力变送器":"压力变送器",
+  "防爆电机":"防爆电机","电机":"防爆电机","motor":"防爆电机","ex motor":"防爆电机","explosion-proof motor":"防爆电机","22KW防爆电机":"防爆电机","30KW防爆电机":"防爆电机","75KW防爆电机":"防爆电机","7.5KW防爆电机":"防爆电机","11KW防爆电机":"防爆电机","15KW防爆电机":"防爆电机","3KW防爆电机":"防爆电机","YB3电机":"防爆电机",
+  "滤芯":"滤芯","filter element":"滤芯","filter":"滤芯","液压油滤芯":"滤芯","液压滤芯":"滤芯","空气滤芯":"滤芯","空气滤清器":"滤芯","空气滤清器滤芯":"滤芯","水滤芯":"滤芯","天然气滤芯":"滤芯","聚结滤芯":"滤芯","润滑油滤芯":"滤芯",
+  "润滑油":"润滑油","lubricant":"润滑油","oil":"润滑油","液压油":"润滑油","齿轮油":"润滑油","抗磨液压油":"润滑油","柴油机油":"润滑油","柴油机":"润滑油","液压油":"润滑油","长城合成油":"润滑油","壳牌润滑脂":"润滑油","美孚齿轮油":"润滑油","美孚黑霸王":"润滑油","昆仑液压油":"润滑油","合成压缩机油":"润滑油","锂基脂":"润滑油",
+  "螺栓":"螺栓","bolt":"螺栓","螺柱":"螺栓","stud":"螺栓","stud bolt":"螺栓","hex bolt":"螺栓","双头螺栓":"螺栓","六角螺栓":"螺栓","高强度螺栓":"螺栓","达克罗螺栓":"螺栓","外六角":"螺栓"
+};
+
+const CATEGORY_FROM_KEYWORDS = [
+  ["机械密封", /(机封|密封|seal|端面密封|波纹管|集装)/i],
+  ["深沟球轴承", /(轴承|bearing|skf|fag|nsk|ntn|koyo)/i],
+  ["闸阀", /(闸阀|闸伐|gate valve|gate|闸板)/i],
+  ["O型圈", /(o[ -]?ring|o 型圈|密封圈|oring)/i],
+  ["法兰", /(法兰|flange|盲板)/i],
+  ["压力变送器", /(变送器|transmitter|rosemount|横河|霍尼韦尔|西门子|3051|eja)/i],
+  ["防爆电机", /(防爆电机|电机|ex motor|yb3|motor)/i],
+  ["滤芯", /(滤芯|filter)/i],
+  ["润滑油", /(润滑油|液压油|齿轮油|柴油机|锂基脂|lubricant|oil|grease)/i],
+  ["螺栓", /(螺栓|螺柱|bolt|stud)/i]
+];
+
+function detectCategory(rawName, rawCategory){
+  const txt = `${rawName || ""} ${rawCategory || ""}`.trim();
+  if(!txt) return "其他";
+  // 先匹配 rawCategory
+  if(rawCategory && CANONICAL_CATEGORY[rawCategory.trim()]) return CANONICAL_CATEGORY[rawCategory.trim()];
+  // 关键词
+  for(const [cat, re] of CATEGORY_FROM_KEYWORDS){
+    if(re.test(txt)) return cat;
+  }
+  return rawCategory || "其他";
+}
+
+function standardizeText(text){
+  if(!text) return "";
+  let t = String(text).toLowerCase();
+  for(const [std, syns] of Object.entries(SYNONYMS)){
+    for(const s of syns){
+      const re = new RegExp(s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+      t = t.replace(re, std);
+    }
+  }
+  return t;
+}
+
+function extractBrand(text){
+  if(!text) return "";
+  const lower = String(text).toLowerCase();
+  for(const b of BRANDS){ if(lower.includes(b.toLowerCase())) return b; }
+  return "";
+}
+
+function extractModel(text){
+  if(!text) return "";
+  const patterns = [
+    /\bcm0?4b[-–—]?0?\d{2,3}\b/i, /\b6[23]\d{2}[-]?\d?[a-z0-9]*\b/i,
+    /\bz9?4\d[hwp][-]?\d{1,3}[cp]?/i, /\byb3[-–—]?\d{3}[mls][-]?\d/i,
+    /\beja\d{3}[ae]?/i, /\b3051[a-z0-9]*\b/i, /\bpmp\d{2}\b/i,
+    /\bhp\d{4}[a-z]*\d*\b/i, /\bpaf[-–—]?\d[-–—]?0\.\d{2}\b/i,
+    /\bac[-–—]?\d{3}\b/i, /\bjcg[-–—]?\d{3}\b/i, /\blx[-–—]?\d{3}\b/i,
+    /\bsx[-–—]?\d{3}\b/i, /\bcng[-–—]?\d{2}\b/i,
+    /\bm1[6-9]|m[2-3][0-9]?\b/i,
+    /\bp320\b/i, /\bl-hm46\b/i
+  ];
+  for(const p of patterns){ const m = String(text).match(p); if(m) return m[0].toUpperCase().replace(/[-—–]/g,"-"); }
+  return "";
+}
+
+function extractDN(text){
+  if(!text) return "";
+  const t = String(text);
+  let m = t.match(/DN\s*(\d+)/i); if(m) return m[1];
+  m = t.match(/(\d+)\s*mm/i); if(m) return m[1];
+  m = t.match(/(\d+)\s*寸/); if(m){ const map = {"3":"80","4":"100","6":"150","8":"200","10":"250","12":"300"}; return map[m[1]] || m[1]; }
+  return "";
+}
+
+function extractPressure(text){
+  if(!text) return "";
+  const lower = String(text).toLowerCase();
+  const mp = [
+    {std:"0.6MPa", re:/(0\.6mpa|6bar|class150|150lb|150#)/i},
+    {std:"1.0MPa", re:/(1\.0mpa|10bar)/i},
+    {std:"1.6MPa", re:/(1\.6mpa|pn16|16公斤|16bar|class150|150lb|150#)/i},
+    {std:"2.5MPa", re:/(2\.5mpa|pn25|25公斤|25bar|class300|300#)/i},
+    {std:"4.0MPa", re:/(4\.0mpa|pn40|40公斤|40bar|class600)/i},
+    {std:"6.0MPa", re:/(6\.0mpa|60bar|class600)/i},
+    {std:"10MPa", re:/(10mpa|pn100|100公斤|100bar)/i},
+    {std:"25MPa", re:/(25mpa|250bar)/i}
+  ];
+  for(const {std, re} of mp){ if(re.test(lower)) return std; }
+  // 通用：数字+MPa/bar/磅
+  let m = lower.match(/(\d+\.?\d*)\s*(mpa|bar|公斤)/);
+  if(m) return m[1] + "MPa";
+  return "";
+}
+
+function extractMaterial(text){
+  if(!text) return "";
+  const lower = String(text).toLowerCase();
+  // 先长后短
+  const mats = [
+    ["全氟醚", /(全氟醚|ffkm|kalrez)/i],
+    ["35CrMoA", /35crmo/i],
+    ["丁腈橡胶", /(丁腈|nbr)/i],
+    ["硅橡胶", /(硅橡胶|vmq|silicone)/i],
+    ["氟橡胶", /(氟橡胶|fkm|viton|氟胶)/i],
+    ["碳化硅", /(碳化硅|sic)/i],
+    ["铬钼钢", /(铬钼钢|crmo)/i],
+    ["哈氏合金", /(哈氏合金|c276|hastelloy)/i],
+    ["钛合金", /(钛合金|钛材|titanium|ti)/i],
+    ["316L", /(316l|sus316l)/i],
+    ["316", /(316|316ss|sus316)(?!l)/i],
+    ["304L", /(304l|cf3)/i],
+    ["304", /(304|304ss|cf8|sus304)(?!l)/i],
+    ["2205", /(2205|双相钢|duplex)/i],
+    ["Q235", /(q235|q235b)/i],
+    ["铸钢", /(铸钢|碳钢|wcb)/i]
+  ];
+  for(const [std, re] of mats){ if(re.test(lower)) return std; }
+  return "";
+}
+
+function buildSemanticText(rec){
+  const text = `${rec.material_name || ""} ${rec.description || ""}`;
+  const std = standardizeText(text);
+  const tokens = [];
+  const model = rec._ext?.model || extractModel(text);
+  const brand = rec._ext?.brand || extractBrand(text);
+  const dn = rec._ext?.dn || extractDN(text);
+  const pressure = rec._ext?.pressure || extractPressure(text);
+  const material = rec._ext?.material || extractMaterial(text);
+  if(model) tokens.push(model, model, model);
+  if(brand) tokens.push(brand, brand);
+  if(dn) tokens.push("DN" + dn, "DN" + dn);
+  if(pressure) tokens.push(pressure, pressure);
+  if(material) tokens.push(material, material);
+  // 中文片段
+  const cn = (std.match(/[\u4e00-\u9fa5]{2,5}/g) || []);
+  tokens.push(...cn.slice(0, 6));
+  // 字符 n-gram (2-3)
+  const clean = std.replace(/[^\u4e00-\u9fa5a-z0-9]/g, "").slice(0, 400);
+  for(let n = 2; n <= 3; n++){
+    for(let i = 0; i <= clean.length - n; i++) tokens.push(clean.substring(i, i+n));
+  }
+  return tokens;
+}
+
+function tfidfVector(tokens){
+  const tf = new Map();
+  for(const t of tokens) tf.set(t, (tf.get(t) || 0) + 1);
+  const total = tokens.length || 1;
+  return new Map(Array.from(tf, ([k, v]) => [k, v / total]));
+}
+
+function cosine(v1, v2){
+  let dot = 0, n1 = 0, n2 = 0;
+  for(const [k, v] of v1){ n1 += v*v; if(v2.has(k)) dot += v * v2.get(k); }
+  for(const [, v] of v2) n2 += v*v;
+  if(n1 === 0 || n2 === 0) return 0;
+  return dot / Math.sqrt(n1 * n2);
+}
+
+/* ===================== 治理引擎 ===================== */
+function clusterRecords(records){
+  const vectors = records.map(r => tfidfVector(buildSemanticText(r)));
+  const n = records.length;
+  const parent = Array.from({length: n}, (_, i) => i);
+  const find = x => parent[x] === x ? x : (parent[x] = find(parent[x]));
+  const union = (a, b) => { const ra = find(a), rb = find(b); if(ra !== rb) parent[ra] = rb; };
+  for(let i = 0; i < n; i++){
+    for(let j = i + 1; j < n; j++){
+      const sim = cosine(vectors[i], vectors[j]);
+      const r1 = records[i]._ext, r2 = records[j]._ext;
+      // 关键属性必须一致：型号相同、压力相同、DN 相同；材质可宽容
+      if(r1.model && r2.model && r1.model !== r2.model) continue;
+      if(r1.pressure && r2.pressure && r1.pressure !== r2.pressure) continue;
+      if(r1.dn && r2.dn && r1.dn !== r2.dn) continue;
+      // 综合相似度阈值
+      let bonus = 0;
+      if(r1.brand && r2.brand && r1.brand === r2.brand) bonus += 0.15;
+      if(r1.material && r2.material && r1.material === r2.material) bonus += 0.1;
+      const finalSim = Math.min(1, sim + bonus);
+      if(finalSim >= 0.55) union(i, j);
+    }
+  }
+  const groups = new Map();
+  for(let i = 0; i < n; i++){
+    const r = find(i);
+    if(!groups.has(r)) groups.set(r, []);
+    groups.get(r).push(i);
+  }
+  return Array.from(groups.values());
+}
+
+function detectConflicts(records){
+  // 组内属性冲突：型号/DN/压力/材质 不同则触发
+  const sets = { model: new Set(), dn: new Set(), pressure: new Set(), material: new Set(), brand: new Set() };
+  for(const r of records){
+    for(const k of Object.keys(sets)) if(r._ext[k]) sets[k].add(r._ext[k]);
+  }
+  const conflicts = [];
+  if(sets.model.size > 1) conflicts.push({field:"型号", values: [...sets.model]});
+  if(sets.dn.size > 1) conflicts.push({field:"口径", values: [...sets.dn]});
+  if(sets.pressure.size > 1) conflicts.push({field:"压力", values: [...sets.pressure]});
+  if(sets.material.size > 1) conflicts.push({field:"材质", values: [...sets.material]});
+  return conflicts;
+}
+
+function generateStandardName(records, category){
+  // 选最长描述作为基准
+  const base = records.slice().sort((a,b) => (b.material_name||"").length - (a.material_name||"").length)[0];
+  const parts = [];
+  const ext = base._ext;
+  if(ext.brand) parts.push(ext.brand);
+  if(ext.model) parts.push(ext.model);
+  parts.push(category);
+  const specs = [];
+  if(ext.dn) specs.push("DN" + ext.dn);
+  if(ext.pressure) specs.push(ext.pressure);
+  if(ext.material) specs.push(ext.material);
+  if(specs.length) parts.push(specs.join(" "));
+  return parts.join(" ");
+}
+
+function runGovernance(batch){
+  const records = batch.records.map(r => {
+    const text = `${r.material_name || ""} ${r.description || ""}`;
+    r._ext = {
+      model: extractModel(text),
+      brand: extractBrand(text),
+      dn: extractDN(text),
+      pressure: extractPressure(text),
+      material: extractMaterial(text)
+    };
+    r._category = detectCategory(r.material_name, r.category);
+    return r;
+  });
+  const groups = clusterRecords(records);
+  const masters = [];
+  const reviews = [];
+  // 预加载已批准主数据目录（跨批次）
+  const approvedCatalog = STATE.canonicalMasters || [];
+  let mdmCounters = STATE.mdmCounters || {};
+  // 同步计数器：找出每个前缀已用的最大序号
+  for(const m of approvedCatalog){
+    const prefix = (m.mdm_code || "").split("-").slice(0,2).join("-");
+    if(!prefix) continue;
+    const num = parseInt(((m.mdm_code||"").split("-")[2])||"0", 10);
+    if(num > (mdmCounters[prefix] || 0)) mdmCounters[prefix] = num;
+  }
+
+  const nextCode = (prefix) => {
+    mdmCounters[prefix] = (mdmCounters[prefix] || 0) + 1;
+    return `${prefix}-${String(mdmCounters[prefix]).padStart(4,"0")}`;
+  };
+
+  for(const groupIdx of groups){
+    const idxs = groupIdx;
+    const items = idxs.map(i => records[i]);
+    const conflicts = detectConflicts(items);
+    const category = items[0]._category || "其他";
+    const standardName = generateStandardName(items, category);
+    const prefix = CATEGORY_PREFIX[category] || "MDM-X";
+    const ext0 = items[0]._ext;
+    const hasMultipleSystems = new Set(items.map(r => r.system_source)).size >= 2;
+    const hasMultiple = items.length >= 2;
+
+    // 决策：
+    // - 1条记录：建议新建
+    // - 多条无冲突：自动合并
+    // - 多条但有冲突：进入审核
+    // - 已批准主数据目录中存在近似匹配 → 复用其编码
+    let decision = "NEW", confidence = 0.6, mdmCode, usedCatalog = null;
+    if(hasMultiple && conflicts.length === 0){
+      decision = "AUTO_MERGE"; confidence = 0.92;
+    } else if(hasMultiple && conflicts.length > 0){
+      decision = "REVIEW"; confidence = 0.72;
+    }
+
+    // 查目录
+    if(approvedCatalog.length){
+      const candidates = approvedCatalog.map(cm => {
+        const cExt = cm._ext || {};
+        let score = 0;
+        if(cm.category === category) score += 0.3;
+        if(cExt.model && ext0.model && cExt.model === ext0.model) score += 0.3;
+        if(cExt.brand && ext0.brand && cExt.brand === ext0.brand) score += 0.15;
+        if(cExt.dn && ext0.dn && cExt.dn === ext0.dn) score += 0.1;
+        if(cExt.pressure && ext0.pressure && cExt.pressure === ext0.pressure) score += 0.1;
+        if(cExt.material && ext0.material && cExt.material === ext0.material) score += 0.1;
+        return { cm, score };
+      }).filter(x => x.score >= 0.55).sort((a,b) => b.score - a.score).slice(0, 3);
+
+      if(candidates.length && decision !== "REVIEW"){
+        // 高分匹配且无冲突 → 复用
+        if(candidates[0].score >= 0.7 && conflicts.length === 0){
+          usedCatalog = candidates[0].cm;
+          mdmCode = usedCatalog.mdm_code;
+          decision = "AUTO_MERGE";
+          confidence = candidates[0].score;
+        }
+      }
+      if(candidates.length && decision === "REVIEW"){
+        // 在 reason 中提示候选
+        const master = {
+          mdm_code: mdmCode || nextCode(prefix),
+          standard_name: usedCatalog ? usedCatalog.standard_name : standardName,
+          category, _ext: ext0,
+          model: ext0.model || "", brand: ext0.brand || "", dn: ext0.dn || "",
+          pressure: ext0.pressure || "", material: ext0.material || "",
+          source_count: items.length,
+          source_systems: [...new Set(items.map(r => r.system_source))].join(","),
+          confidence, decision,
+          code_prefix: mdmCode ? mdmCode.split("-").slice(0,2).join("-") : prefix,
+          source_records: items.map(r => r.material_code || "").join(";"),
+          _records: items
+        };
+        masters.push(master);
+        const reason = `组内${conflicts.map(c=>`${c.field}冲突(${c.values.join(" vs ")})`).join("；")}；候选已批准主数据：${candidates.slice(0,3).map(c=>`${c.cm.mdm_code}(${(c.score*100).toFixed(0)}%)`).join("、")}`;
+        reviews.push({
+          id: uid(),
+          mdm_code: master.mdm_code,
+          standard_name: master.standard_name,
+          confidence, reason,
+          source_records: master.source_records,
+          source_systems: master.source_systems,
+          applied_rules: conflicts.length ? "R008-型号冲突拦截" : "R006-中置信度审核",
+          category, _ext: ext0, _records: items,
+          status: "REVIEW",
+          candidates: candidates.map(c => ({mdm_code: c.cm.mdm_code, score: c.score, name: c.cm.standard_name}))
+        });
+        continue;
+      }
+    }
+
+    if(!mdmCode) mdmCode = nextCode(prefix);
+    const master = {
+      mdm_code: mdmCode,
+      standard_name: usedCatalog ? usedCatalog.standard_name : standardName,
+      category, _ext: ext0,
+      model: ext0.model || "", brand: ext0.brand || "", dn: ext0.dn || "",
+      pressure: ext0.pressure || "", material: ext0.material || "",
+      source_count: items.length,
+      source_systems: [...new Set(items.map(r => r.system_source))].join(","),
+      confidence, decision,
+      code_prefix: mdmCode.split("-").slice(0,2).join("-"),
+      source_records: items.map(r => r.material_code || "").join(";"),
+      _records: items
+    };
+    masters.push(master);
+    if(decision === "REVIEW"){
+      const reason = conflicts.length ? `组内属性冲突：${conflicts.map(c=>`${c.field}(${c.values.join(" vs ")})`).join("；")}` : `平均相似度${(confidence*100).toFixed(1)}%`;
+      reviews.push({
+        id: uid(),
+        mdm_code: mdmCode, standard_name: master.standard_name,
+        confidence, reason, source_records: master.source_records,
+        source_systems: master.source_systems,
+        applied_rules: conflicts.length ? "R008-型号冲突拦截" : "R006-中置信度审核",
+        category, _ext: ext0, _records: items, status: "REVIEW",
+        candidates: []
+      });
+    }
+  }
+  // 标记一次性使用 _records 不入存储
+  return { masters, reviews, mdmCounters };
+}
+
+/* ===================== 质量分析 ===================== */
+function analyzeQuality(batch){
+  const records = batch.records || [];
+  const systems = {};
+  for(const r of records){
+    const sys = r.system_source || "未分类";
+    if(!systems[sys]) systems[sys] = [];
+    systems[sys].push(r);
+  }
+
+  const result = { overall: { completeness:0, accuracy:0, consistency:0, score:0, recordCount: records.length }, systems: {}, issues: [], suggestions: [] };
+  const perSystemScores = [];
+  for(const [sysName, sysRecords] of Object.entries(systems)){
+    const total = sysRecords.length;
+    if(!total){ result.systems[sysName] = { completeness:0, accuracy:0, consistency:0, score:0, count:0, issues:[], suggestions:[] }; continue; }
+    // 完整性：必要字段非空比例
+    const requiredFields = ["material_code","system_source","material_name","description","category","unit"];
+    let filled = 0;
+    for(const r of sysRecords) for(const f of requiredFields) if(r[f]) filled++;
+    const completeness = Math.round(filled / (total * requiredFields.length) * 100);
+    // 准确性：编码格式 + 时间格式
+    let validCode = 0, validDate = 0;
+    for(const r of sysRecords){
+      if(/^[A-Za-z0-9\-_]{4,}$/.test(r.material_code || "")) validCode++;
+      if(/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}/.test(r.create_time || "")) validDate++;
+    }
+    const accuracy = Math.round((validCode + validDate) / (total * 2) * 100);
+    // 一致性：同名物料的描述、品类、单位是否一致
+    const grouped = new Map();
+    for(const r of sysRecords){
+      const key = (r.material_name || "").toLowerCase().trim();
+      if(!key) continue;
+      if(!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(r);
+    }
+    let sameDesc = 0, sameCat = 0, sameUnit = 0, total2 = 0;
+    for(const arr of grouped.values()){
+      if(arr.length < 2) continue;
+      total2++;
+      const descs = new Set(arr.map(r => (r.description||"").toLowerCase().trim()));
+      const cats = new Set(arr.map(r => (r.category||"").trim()));
+      const units = new Set(arr.map(r => (r.unit||"").trim()));
+      if(descs.size <= 1) sameDesc++;
+      if(cats.size <= 1) sameCat++;
+      if(units.size <= 1) sameUnit++;
+    }
+    const consistency = total2 ? Math.round((sameDesc + sameCat + sameUnit) / (total2 * 3) * 100) : 100;
+
+    const score = Math.round((completeness + accuracy + consistency) / 3);
+    const sysIssues = [];
+    if(completeness < 80) sysIssues.push({level:"high", text:`物料描述/分类缺失率高（${100-completeness}%）`, action:"建议补录物料描述、分类字段。"});
+    if(accuracy < 80) sysIssues.push({level:"mid", text:`编码或时间字段格式不规范（${100-accuracy}%）`, action:"统一编码格式与时间格式（YYYY-MM-DD）。"});
+    if(consistency < 80) sysIssues.push({level:"mid", text:`同名物料字段一致性低（${100-consistency}%）`, action:"整理同名记录的描述、分类、单位。"});
+    if(validCode < total) sysIssues.push({level:"low", text:`存在重复或缺失物料编码（${total-validCode}条）`, action:"清洗重复编码，补充空编码记录。"});
+    result.systems[sysName] = { completeness, accuracy, consistency, score, count: total, issues: sysIssues, suggestions: sysIssues.map(i => i.action) };
+    perSystemScores.push({ sysName, score, issues: sysIssues });
+    // 汇总问题
+    for(const i of sysIssues) result.issues.push({ system: sysName, ...i });
+  }
+  if(perSystemScores.length){
+    result.overall.completeness = Math.round(perSystemScores.reduce((s,x) => s + (result.systems[x.sysName]?.completeness || 0), 0) / perSystemScores.length);
+    result.overall.accuracy = Math.round(perSystemScores.reduce((s,x) => s + (result.systems[x.sysName]?.accuracy || 0), 0) / perSystemScores.length);
+    result.overall.consistency = Math.round(perSystemScores.reduce((s,x) => s + (result.systems[x.sysName]?.consistency || 0), 0) / perSystemScores.length);
+    result.overall.score = Math.round((result.overall.completeness + result.overall.accuracy + result.overall.consistency) / 3);
+  }
+  return result;
+}
+
+/* ===================== IndexedDB 存储 ===================== */
+const DB_NAME = "mdm_enterprise_demo_v1";
+const DB_VERSION = 1;
+const STORES = ["batches","records","masters","mappings","reviews","qualityReports","searchHistory","lifecycle","distributionLogs","canonicalMasters","settings"];
+
+function openDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (ev) => {
+      const db = ev.target.result;
+      for(const s of STORES){
+        if(!db.objectStoreNames.contains(s)){
+          const store = db.createObjectStore(s, { keyPath: "id", autoIncrement: true });
+          if(s === "batches" || s === "canonicalMasters"){ store.createIndex("by_key", "batch_id", { unique: false }); }
+          if(s === "settings"){}
+        }
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbPut(storeName, value){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+    const req = store.put(value);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbGet(storeName, id){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readonly");
+    const req = tx.objectStore(storeName).get(id);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbAll(storeName){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readonly");
+    const req = tx.objectStore(storeName).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbClear(storeName){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    const req = tx.objectStore(storeName).clear();
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbDelete(storeName, id){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    const req = tx.objectStore(storeName).delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* ===================== 应用全局状态 ===================== */
+const STATE = {
+  currentBatch: null,    // {id, batch_id, filename, created_at, encoding, record_count, ...}
+  records: [],
+  masters: [],
+  mappings: [],
+  reviews: [],
+  qualityReport: null,
+  searchHistory: [],
+  lifecycle: [],
+  distributionLogs: [],
+  canonicalMasters: [],
+  mdmCounters: {},
+  currentRole: "申请人",
+  currentPage: "ingest"
+};
+
+/* ===================== CSV 导出 ===================== */
+function csvCell(v){
+  if(v == null) return "";
+  const s = String(v);
+  if(/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+function downloadCSV(filename, headers, rows){
+  const lines = [headers.map(csvCell).join(",")];
+  for(const r of rows) lines.push(r.map(csvCell).join(","));
+  const csv = "\ufeff" + lines.join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ===================== 数据加载与持久化 ===================== */
+async function loadAll(){
+  STATE.canonicalMasters = await dbAll("canonicalMasters");
+  const settings = await dbAll("settings");
+  const sCounters = settings.find(x => x.key === "mdmCounters");
+  if(sCounters) STATE.mdmCounters = sCounters.value || {};
+  const batches = await dbAll("batches");
+  if(batches.length){
+    // 取最新批次
+    batches.sort((a,b) => b.created_at - a.created_at);
+    const cur = batches[0];
+    await loadBatch(cur.batch_id);
+  }
+  STATE.searchHistory = await dbAll("searchHistory");
+  STATE.lifecycle = await dbAll("lifecycle");
+  STATE.distributionLogs = await dbAll("distributionLogs");
+  updateEngineStatus();
+}
+
+async function loadBatch(batchId){
+  const batches = await dbAll("batches");
+  const cur = batches.find(b => b.batch_id === batchId);
+  if(!cur) return;
+  STATE.currentBatch = cur;
+  const allRecords = await dbAll("records");
+  STATE.records = allRecords.filter(r => r.batch_id === batchId);
+  const allMasters = await dbAll("masters");
+  STATE.masters = allMasters.filter(m => m.batch_id === batchId);
+  const allMappings = await dbAll("mappings");
+  STATE.mappings = allMappings.filter(m => m.batch_id === batchId);
+  const allReviews = await dbAll("reviews");
+  STATE.reviews = allReviews.filter(r => r.batch_id === batchId && r.status === "REVIEW");
+  const qrs = await dbAll("qualityReports");
+  STATE.qualityReport = qrs.find(q => q.batch_id === batchId) || null;
+}
+
+async function saveBatch(batchInfo, records, masters, mappings, reviews){
+  // 写入批次
+  await dbPut("batches", batchInfo);
+  // 清空该批次旧数据
+  for(const store of ["records","masters","mappings","reviews"]){
+    const all = await dbAll(store);
+    for(const x of all) if(x.batch_id === batchInfo.batch_id) await dbDelete(store, x.id);
+  }
+  // 写新数据
+  for(const r of records){ await dbPut("records", { batch_id: batchInfo.batch_id, ...r }); }
+  for(const m of masters){ await dbPut("masters", { batch_id: batchInfo.batch_id, ...m }); }
+  for(const m of mappings){ await dbPut("mappings", { batch_id: batchInfo.batch_id, ...m }); }
+  for(const r of reviews){ await dbPut("reviews", { batch_id: batchInfo.batch_id, ...r }); }
+}
+
+async function updateReview(review){
+  await dbPut("reviews", review);
+}
+
+async function updateMaster(master){
+  await dbPut("masters", master);
+}
+
+/* ===================== 引擎状态 ===================== */
+function updateEngineStatus(){
+  const el = $("#engineStatus"), txt = $("#engineStatusText");
+  if(STATE.currentBatch){
+    el.classList.remove("idle");
+    txt.textContent = `当前：${STATE.currentBatch.filename} · ${fmtNum(STATE.currentBatch.record_count)} 条`;
+  } else {
+    el.classList.add("idle");
+    txt.textContent = "等待接入数据";
+  }
+}
+
+/* ===================== 渲染：总览 ===================== */
+function renderDash(){
+  const records = STATE.records;
+  const masters = STATE.masters;
+  const reviews = STATE.reviews;
+  const autoMerge = masters.filter(m => m.decision === "AUTO_MERGE").length;
+  const reviewItems = reviews.length;
+  const newItems = masters.filter(m => m.decision === "NEW").length;
+  const compression = records.length ? (1 - masters.length / records.length) * 100 : 0;
+  const sources = new Set(records.map(r => r.system_source).filter(Boolean)).size;
+  const categories = new Set(masters.map(m => m.category)).size;
+  const catalogCount = STATE.canonicalMasters.length;
+
+  const html = `
+    <div class="page on">
+      <!-- ④ 本批次治理摘要 -->
+      ${masters.length ? `
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="icon" style="background:rgba(16,185,129,.12);color:var(--s)">📊</span>④ 本批次治理摘要</div>
+          <div class="card-actions">
+            <button class="btn btn-success btn-sm" onclick="exportResultCSV('masters')">⬇ 主数据</button>
+            <button class="btn btn-secondary btn-sm" onclick="exportResultCSV('mappings')">⬇ 系统映射</button>
+            <button class="btn btn-secondary btn-sm" onclick="exportResultCSV('reviews')" ${!reviews.length?"disabled":""}>⬇ 审核清单</button>
+            <button class="btn btn-secondary btn-sm" onclick="exportResultCSV('filled')">⬇ 智能填报</button>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg);border-radius:8px;margin-bottom:12px;font-size:12px;color:var(--t2);display:flex;flex-wrap:wrap;gap:16px">
+          <span>📄 <strong style="color:var(--t)">${esc(STATE.currentBatch?.filename || "")}</strong></span>
+          <span>🕒 ${esc(fmtDate(STATE.currentBatch?.created_at || Date.now()))}</span>
+          <span>编码：${esc((STATE.currentBatch?.encoding || "").toUpperCase())}</span>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi k-blue"><div class="kpi-emoji">📦</div><div class="kpi-label">识别主数据</div><div class="kpi-value">${fmtNum(masters.length)}</div><div class="kpi-sub">${categories} 个品类</div></div>
+          <div class="kpi k-green"><div class="kpi-emoji">✅</div><div class="kpi-label">自动合并</div><div class="kpi-value" style="color:var(--s)">${fmtNum(autoMerge)}</div><div class="kpi-sub">${masters.length?((autoMerge/masters.length)*100).toFixed(0):0}%</div></div>
+          <div class="kpi k-amber"><div class="kpi-emoji">⚠️</div><div class="kpi-label">待审核</div><div class="kpi-value" style="color:var(--w)">${fmtNum(reviewItems)}</div><div class="kpi-sub">需人工确认</div></div>
+          <div class="kpi k-violet"><div class="kpi-emoji">🆕</div><div class="kpi-label">建议新建</div><div class="kpi-value" style="color:var(--pu)">${fmtNum(newItems)}</div><div class="kpi-sub">本批次新识别</div></div>
+          <div class="kpi k-cyan"><div class="kpi-emoji">📥</div><div class="kpi-label">原始记录</div><div class="kpi-value">${fmtNum(records.length)}</div><div class="kpi-sub">${sources} 个数据源</div></div>
+          <div class="kpi k-rose"><div class="kpi-emoji">📉</div><div class="kpi-label">数据压缩率</div><div class="kpi-value">${compression.toFixed(1)}%</div><div class="kpi-sub">${records.length} → ${masters.length}</div></div>
+        </div>
+      </div>
+
+      <!-- ⑤ 治理结果明细 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="icon" style="background:rgba(245,158,11,.12);color:var(--w)">📋</span>⑤ 治理结果明细（${masters.length} 条）</div>
+          <div class="card-actions">
+            <button class="btn btn-secondary btn-sm" onclick="switchPage('ingest')">📥 继续接入新数据</button>
+          </div>
+        </div>
+        ${renderMasterTable(masters.slice(0, 50), true)}
+      </div>
+
+      <!-- ⑥ 本批次治理分析 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="icon" style="background:rgba(6,182,212,.12);color:var(--a)">📈</span>⑥ 本批次治理分析</div>
+          <div style="font-size:11px;color:var(--t3)">数据均基于本批次 ${fmtNum(records.length)} 条记录实时计算</div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-card">${chartDonut("chart-decision", [{name:"自动合并",value:autoMerge,color:"#22d3ee"},{name:"待审核",value:reviewItems,color:"#f59e0b"},{name:"建议新建",value:newItems,color:"#a78bfa"}])}</div>
+          <div class="chart-card">${chartBar("chart-source", countByKey(records, "system_source"), "数据源记录数", { color:"#3b82f6" })}</div>
+        </div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="chart-card">${chartBar("chart-category", countByKey(masters, "category"), "主数据品类分布", { color:"#10b981", horizontal: true })}</div>
+          <div class="chart-card">${qualityRadarSVG()}</div>
+        </div>
+      </div>
+
+      <!-- ⑦ 多源合并 / 待审核 Top -->
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(139,92,246,.12);color:var(--pu)">🏆</span>⑦ 治理亮点</div>
+        <div class="two">
+          <div>
+            <div style="font-size:11px;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">🆕 多源合并 Top 3</div>
+            ${masters.filter(m => m.decision === "AUTO_MERGE").sort((a,b) => (b.source_count||0) - (a.source_count||0)).slice(0, 3).map(m => `
+              <div style="padding:10px;background:var(--bg);border-radius:8px;margin-bottom:6px;font-size:12px">
+                <div style="display:flex;justify-content:space-between;gap:6px"><span><code style="color:var(--a);font-weight:700">${esc(m.mdm_code)}</code> ${esc(m.standard_name)}</span><span class="tag tag-merge">${m.source_count} 源</span></div>
+                <div style="font-size:10px;color:var(--t3);margin-top:3px">来源：${esc(m.source_systems || "")}</div>
+              </div>
+            `).join("") || "<div style='color:var(--t3);font-size:11px'>无</div>"}
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">⚠️ 待审核 Top 3</div>
+            ${reviews.slice(0, 3).map(r => `
+              <div style="padding:10px;background:var(--bg);border-radius:8px;margin-bottom:6px;font-size:12px">
+                <div style="display:flex;justify-content:space-between;gap:6px"><span><code style="color:var(--a);font-weight:700">${esc(r.mdm_code)}</code> ${esc(r.standard_name)}</span><span class="tag tag-warn">${Math.round((r.confidence||0)*100)}%</span></div>
+                <div style="font-size:10px;color:var(--w);margin-top:3px">${esc(r.reason || "")}</div>
+              </div>
+            `).join("") || "<div style='color:var(--t3);font-size:11px'>无</div>"}
+          </div>
+        </div>
+      </div>
+      ` : emptyState("📊","等待数据接入","请前往「批量接入」上传企业 CSV")}
+    </div>
+  `;
+  return html;
+}
+
+function renderMasterTable(masters, compact=false){
+  const rows = masters.map(m => `
+    <tr class="clickable" onclick="showMasterDetail('${esc(m.mdm_code)}')">
+      <td><code style="color:var(--a);font-weight:700">${esc(m.mdm_code)}</code></td>
+      <td>${esc(m.standard_name)}</td>
+      <td><span class="tag tag-info">${esc(m.category || "其他")}</span></td>
+      <td>${esc(m.model || "-")}</td>
+      <td>${esc(m.brand || "-")}</td>
+      <td>${esc(m.dn ? "DN"+m.dn : "-")}</td>
+      <td>${esc(m.pressure || "-")}</td>
+      <td>${esc(m.material || "-")}</td>
+      <td>${fmtNum(m.source_count || 0)} 条</td>
+      <td>${decisionTag(m.decision)}</td>
+    </tr>
+  `).join("");
+  return `
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>MDM编码</th><th>标准名称</th><th>品类</th><th>型号</th><th>品牌</th><th>口径</th><th>压力</th><th>材质</th><th>来源</th><th>决策</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    ${masters.length > 50 ? `<div style="text-align:center;padding:10px;color:var(--t3);font-size:11px">仅显示前 50 条，共 ${masters.length} 条。完整结果请通过导出 CSV 获取。</div>` : ""}
+  `;
+}
+
+function decisionTag(d){
+  if(d === "AUTO_MERGE") return `<span class="tag tag-merge">自动合并</span>`;
+  if(d === "REVIEW") return `<span class="tag tag-warn">待审核</span>`;
+  if(d === "CONFIRMED_NEW") return `<span class="tag tag-new">已确认新建</span>`;
+  return `<span class="tag tag-new">建议新建</span>`;
+}
+
+function countByKey(arr, key){
+  const m = new Map();
+  for(const x of (arr || [])){
+    const k = x[key] || "(空)";
+    m.set(k, (m.get(k) || 0) + 1);
+  }
+  return Array.from(m, ([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value).slice(0, 12);
+}
+
+function emptyState(icon, title, desc){
+  return `<div class="empty"><div class="ic">${icon}</div><div class="title">${esc(title)}</div><div class="desc">${esc(desc)}</div></div>`;
+}
+
+window.showMasterDetail = async function(mdmCode){
+  const master = STATE.masters.find(m => m.mdm_code === mdmCode);
+  if(!master) return;
+  const reviewItems = STATE.reviews.find(r => r.mdm_code === mdmCode);
+  const records = STATE.records.filter(r => (master.source_records || "").includes(r.material_code || ""));
+  const sources = (master.source_systems || "").split(",").filter(Boolean);
+  const ext = master._ext || {};
+  const html = `
+    <div class="modal-title">
+      <span>主数据详情 · <code style="color:var(--a)">${esc(master.mdm_code)}</code></span>
+      <span class="close">✕</span>
+    </div>
+    <div class="card-head" style="margin-bottom:10px">
+      <div>
+        <div style="font-size:15px;font-weight:700">${esc(master.standard_name)}</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px">${decisionTag(master.decision)} · 置信度 ${fmtPct(master.confidence)} · 来源系统 ${sources.join("/")}</div>
+      </div>
+    </div>
+    <div class="two">
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">关键属性</div>
+        <table style="font-size:12px">
+          <tbody>
+            <tr><td style="color:var(--t2)">品类</td><td>${esc(master.category)}</td></tr>
+            <tr><td style="color:var(--t2)">型号</td><td>${esc(master.model || "-")}</td></tr>
+            <tr><td style="color:var(--t2)">品牌</td><td>${esc(master.brand || "-")}</td></tr>
+            <tr><td style="color:var(--t2)">口径</td><td>${esc(master.dn || "-")}</td></tr>
+            <tr><td style="color:var(--t2)">压力</td><td>${esc(master.pressure || "-")}</td></tr>
+            <tr><td style="color:var(--t2)">材质</td><td>${esc(master.material || "-")}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">来源记录（${records.length}）</div>
+        <div style="max-height:240px;overflow-y:auto">
+          ${records.map(r => `<div style="padding:6px 8px;background:var(--bg);border-radius:6px;margin-bottom:4px;font-size:11px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--a);font-family:Consolas,monospace">${esc(r.material_code || "")}</span><span class="tag tag-muted">${esc(r.system_source || "")}</span></div>
+            <div style="color:var(--t);margin-top:2px">${esc(r.material_name || "")}</div>
+            <div style="color:var(--t3);font-size:10px">${esc(r.description || "")}</div>
+          </div>`).join("") || "<div style='color:var(--t3);text-align:center;padding:20px'>无关联记录</div>"}
+        </div>
+      </div>
+    </div>
+  `;
+  showModal(html);
+};
+
+/* ===================== 渲染：知识库 ===================== */
+function renderKB(){
+  const fieldsCount = Object.keys(FIELD_ALIASES).length;
+  const synsCount = Object.keys(SYNONYMS).length;
+  const brandsCount = BRANDS.length;
+  const catsCount = Object.keys(CATEGORY_PREFIX).length;
+  const rulesCount = 7;
+  const casesCount = STATE.masters.length;
+
+  // 命中统计：本批次
+  const records = STATE.records;
+  const synonymHits = {};
+  for(const r of records){
+    const std = standardizeText(`${r.material_name || ""} ${r.description || ""}`);
+    for(const k of Object.keys(SYNONYMS)){
+      if(std.includes(k.toLowerCase())) synonymHits[k] = (synonymHits[k] || 0) + 1;
+    }
+  }
+  const brandHits = new Set(records.map(r => extractBrand(`${r.material_name || ""} ${r.description || ""}`)).filter(Boolean));
+
+  return `
+    <div class="page">
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(139,92,246,.12);color:var(--pu)">📚</span>本地治理规则库</div>
+        <p style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:12px">
+          本页规则均由本机内置配置实时计算，统计卡片数量与本批次命中情况来自真实计算结果。
+        </p>
+        <div class="kb-grid">
+          <div class="kb-stat k1"><div class="lbl">字段别名映射</div><div class="val">${fieldsCount}</div><div class="hit">${records.length ? `已自动识别 ${Object.keys(FIELD_ALIASES).filter(f => records[0] && records[0][f] !== undefined).length} 类字段` : "等待上传数据"}</div></div>
+          <div class="kb-stat k2"><div class="lbl">同义词规则</div><div class="val">${synsCount}</div><div class="hit">${records.length ? `本批次命中 ${Object.keys(synonymHits).length} 组` : "等待上传数据"}</div></div>
+          <div class="kb-stat k3"><div class="lbl">品牌识别库</div><div class="val">${brandsCount}</div><div class="hit">${records.length ? `本批次识别 ${brandHits.size} 个品牌` : "等待上传数据"}</div></div>
+          <div class="kb-stat k4"><div class="lbl">品类编码规则</div><div class="val">${catsCount}</div><div class="hit">${records.length ? `已使用 ${new Set(STATE.masters.map(m => m.code_prefix)).size} 个前缀` : "等待上传数据"}</div></div>
+          <div class="kb-stat k5"><div class="lbl">治理决策规则</div><div class="val">${rulesCount}</div><div class="hit">R001~R008 阈值与拦截</div></div>
+          <div class="kb-stat k6"><div class="lbl">本批次主数据</div><div class="val">${casesCount}</div><div class="hit">${records.length ? `原始 ${records.length} → 主数据 ${casesCount}` : "等待上传数据"}</div></div>
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <div class="card-title"><span class="icon" style="background:rgba(26,86,219,.12);color:var(--pl)">📋</span>字段别名映射</div>
+          <div class="tbl-wrap preview-table">
+            <table><thead><tr><th>标准字段</th><th>中英文别名</th><th>本批次</th></tr></thead><tbody>
+              ${Object.entries(FIELD_ALIASES).map(([k, vs]) => `<tr><td><code>${esc(k)}</code></td><td style="font-size:11px">${vs.slice(0,5).map(esc).join(", ")}</td><td>${records.length ? `<span class="tag tag-ok">已识别</span>` : `<span class="tag tag-muted">待上传</span>`}</td></tr>`).join("")}
+            </tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon" style="background:rgba(245,158,11,.12);color:var(--w)">🔄</span>同义词归一</div>
+          <div class="tbl-wrap preview-table">
+            <table><thead><tr><th>标准词</th><th>同义写法</th><th>本批次命中</th></tr></thead><tbody>
+              ${Object.entries(SYNONYMS).slice(0, 16).map(([k, vs]) => `<tr><td><strong>${esc(k)}</strong></td><td style="font-size:11px">${vs.slice(0,4).map(esc).join("、")}</td><td>${records.length ? (synonymHits[k] ? `<span class="tag tag-ok">${synonymHits[k]} 次</span>` : `<span class="tag tag-muted">-</span>`) : `<span class="tag tag-muted">待上传</span>`}</td></tr>`).join("")}
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <div class="card-title"><span class="icon" style="background:rgba(239,68,68,.12);color:var(--d)">⚡</span>治理决策规则</div>
+          <div class="tbl-wrap preview-table">
+            <table><thead><tr><th>规则</th><th>条件</th><th>决策</th></tr></thead><tbody>
+              <tr><td>R001</td><td>多源 + 属性完全一致</td><td>${decisionTag("AUTO_MERGE")}</td></tr>
+              <tr><td>R002</td><td>与已批准主数据近似匹配 ≥0.7</td><td>${decisionTag("AUTO_MERGE")}</td></tr>
+              <tr><td>R005</td><td>高置信度合并</td><td>${decisionTag("AUTO_MERGE")}</td></tr>
+              <tr><td>R006</td><td>中置信度 0.55-0.85</td><td>${decisionTag("REVIEW")}</td></tr>
+              <tr><td>R007</td><td>单条记录无候选</td><td>${decisionTag("NEW")}</td></tr>
+              <tr><td>R008</td><td>组内型号/DN/压力冲突</td><td>${decisionTag("REVIEW")}</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon" style="background:rgba(16,185,129,.12);color:var(--s)">📚</span>治理案例库</div>
+          <div class="tbl-wrap preview-table">
+            <table><thead><tr><th>案例ID</th><th>案例名称</th><th>原始记录</th><th>治理结果</th><th>压缩率</th></tr></thead><tbody>
+              <tr><td>CASE-001</td><td>机械密封多系统归一</td><td>12 条（3 系统）</td><td>2 种主数据</td><td><strong style="color:var(--s)">83.3%</strong></td></tr>
+              <tr><td>CASE-002</td><td>轴承品牌型号去重</td><td>14 条（3 系统）</td><td>3 种主数据</td><td><strong style="color:var(--s)">78.6%</strong></td></tr>
+              <tr><td>CASE-003</td><td>闸阀量纲统一</td><td>18 条（3 系统）</td><td>5 种主数据</td><td><strong style="color:var(--s)">72.2%</strong></td></tr>
+              <tr><td>CASE-004</td><td>O 型圈规格标准化</td><td>16 条（2 系统）</td><td>3 种主数据</td><td><strong style="color:var(--s)">81.3%</strong></td></tr>
+              <tr><td>CASE-011</td><td>全集团跨工厂推广</td><td>50,000 条（5 工厂）</td><td>12,000 种主数据</td><td><strong style="color:var(--s)">76.0%</strong></td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ===================== 渲染：批量接入 ===================== */
+function renderIngest(){
+  return `
+    <div class="page">
+      <!-- ① 上传区 -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="icon" style="background:rgba(16,185,129,.12);color:var(--s)">📥</span>① 上传企业 CSV</div>
+          <div class="card-actions" style="font-size:11px;color:var(--t3)">支持 .csv · 自动识别 UTF-8 / UTF-8 BOM / GBK · 自动匹配列名别名</div>
+        </div>
+        <div class="upload-zone" id="upZone">
+          <input type="file" id="csvFile" accept=".csv,.txt">
+          <div class="ic">📁</div>
+          <div class="t1">点击或拖拽 CSV 文件到此处上传</div>
+          <div class="t2">系统将自动识别列名、抽取关键属性、执行相似度分组并生成 MDM 编码</div>
+        </div>
+        <div class="progress" id="progressBox">
+          <div class="progress-row">
+            <span>处理进度</span>
+            <span class="count" id="progressCount">0 / 0</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div><div class="progress-text" id="progressText">0%</div></div>
+          <div class="progress-status" id="progressStatus">准备就绪</div>
+        </div>
+      </div>
+
+      <!-- ② 字段映射 -->
+      <div class="card" id="mappingSection" style="display:none">
+        <div class="card-head">
+          <div class="card-title"><span class="icon" style="background:rgba(6,182,212,.12);color:var(--a)">🔗</span>② 字段映射识别</div>
+          <div class="card-actions">
+            <button class="btn btn-primary btn-sm" id="applyMappingBtn">✓ 应用映射并治理</button>
+            <button class="btn btn-secondary btn-sm" id="backToUpload">← 重新选择</button>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--t3);margin-bottom:10px">系统已自动识别以下字段映射。如需调整，请从下拉中选择对应 CSV 列。</p>
+        <div class="field-mapping" id="fieldMapping"></div>
+      </div>
+
+      <!-- ③ 治理流水线 -->
+      <div class="card" id="governanceSection" style="display:none">
+        <div class="card-head">
+          <div class="card-title"><span class="icon" style="background:rgba(26,86,219,.12);color:var(--pl)">⚙️</span>③ 治理流水线</div>
+          <div class="card-actions">
+            <button class="btn btn-success btn-sm" onclick="switchPage('dash')">📊 查看本批次治理摘要 →</button>
+          </div>
+        </div>
+        <div class="pipeline" id="pipelineSteps">
+          <div class="step" id="step1"><span class="num">1</span>文件解析</div>
+          <div class="step" id="step2"><span class="num">2</span>实体抽取</div>
+          <div class="step" id="step3"><span class="num">3</span>同义词归一</div>
+          <div class="step" id="step4"><span class="num">4</span>相似度分组</div>
+          <div class="step" id="step5"><span class="num">5</span>合并决策</div>
+          <div class="step" id="step6"><span class="num">6</span>MDM 编码</div>
+        </div>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--t2);line-height:1.7">
+          <strong style="color:var(--s)">✓ 治理已完成</strong>。共处理 <strong style="color:var(--t)">${fmtNum(STATE.records.length)}</strong> 条记录，归并为 <strong style="color:var(--t)">${fmtNum(STATE.masters.length)}</strong> 种主数据，自动合并 <strong style="color:var(--s)">${fmtNum(STATE.masters.filter(m=>m.decision==='AUTO_MERGE').length)}</strong> 种、待审核 <strong style="color:var(--w)">${fmtNum(STATE.reviews.length)}</strong> 种、建议新建 <strong style="color:var(--pu)">${fmtNum(STATE.masters.filter(m=>m.decision==='NEW').length)}</strong> 种。完整结果与导出请前往 <strong style="color:var(--pl)">总览</strong> 查看。
+        </div>
+      </div>
+
+      <!-- 空状态 -->
+      <div class="card" id="ingestEmpty">
+        ${emptyState("📥","等待接入企业数据","请上传 CSV 后系统将自动完成字段识别、属性抽取、相似度分组、决策与 MDM 编码分配")}
+      </div>
+    </div>
+  `;
+}
+
+/* CSV 上传流程 */
+let pendingCSV = null; // {text, encoding, headers, rows, filename}
+
+async function handleCSVFile(file){
+  if(!file) return;
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const { text, encoding } = decodeCSVBuffer(buf);
+  const rows = parseCSV(text);
+  if(!rows.length){
+    toast("未识别到有效记录，请检查表头", "error");
+    return;
+  }
+  const headers = rows[0].map(h => String(h || "").trim());
+  pendingCSV = { text, encoding, headers, rows: rows.slice(1), filename: file.name };
+  showFieldMapping();
+  toast(`已解析文件（${encoding.toUpperCase()}，共 ${rows.length-1} 行）`, "success");
+}
+
+function showFieldMapping(){
+  const mapping = mapFields(pendingCSV.headers);
+  pendingCSV._mapping = mapping;
+  const section = $("#mappingSection");
+  section.style.display = "block";
+  const items = Object.keys(FIELD_ALIASES).map(field => {
+    const matched = mapping[field];
+    return `
+      <div class="field-map-item">
+        <div class="raw">CSV 列：${matched ? esc(matched) : "(未自动识别)"}</div>
+        <div class="mapped ${matched ? "" : "unmapped"}">${matched ? "✓" : "✗"} 标准字段：${esc(field)}</div>
+        <select onchange="changeFieldMapping('${esc(field)}', this.value)">
+          <option value="">-- 选择对应 CSV 列 --</option>
+          ${pendingCSV.headers.map(h => `<option value="${esc(h)}" ${matched===h?"selected":""}>${esc(h)}</option>`).join("")}
+        </select>
+      </div>
+    `;
+  }).join("");
+  $("#fieldMapping").innerHTML = items;
+  // 显示未映射列
+  if(mapping._unmapped.length){
+    $("#fieldMapping").insertAdjacentHTML("beforeend", `<div style="grid-column:1/-1;padding:8px 12px;background:rgba(245,158,11,.08);border-radius:8px;font-size:11px;color:var(--w)">⚠ 未映射列：${mapping._unmapped.map(esc).join("、")}（将作为原始数据保留）</div>`);
+  }
+}
+
+window.changeFieldMapping = function(field, header){
+  if(!header){ delete pendingCSV._mapping[field]; }
+  else { pendingCSV._mapping[field] = header; }
+};
+
+async function applyMappingAndGovern(){
+  if(!pendingCSV){ toast("请先上传文件", "warn"); return; }
+  const mapping = pendingCSV._mapping || {};
+  // 构建记录
+  const records = [];
+  for(const row of pendingCSV.rows){
+    const obj = buildRow(row, pendingCSV.headers, mapping);
+    if(!obj.material_code && !obj.material_name && !obj.description) continue;
+    records.push(obj);
+  }
+  if(!records.length){
+    toast("映射后无有效记录，请检查文件内容", "error");
+    return;
+  }
+  // 显示进度 + 流水线
+  $("#governanceSection").style.display = "block";
+  $("#mappingSection").style.display = "none";
+  $("#ingestEmpty").style.display = "none";
+  showProgress(0, records.length, "准备治理...");
+  // 流水线动画
+  const stepNames = ["文件解析","实体抽取","同义词归一","相似度分组","合并决策","MDM 编码"];
+  for(let i = 1; i <= 6; i++){
+    setStep(i, "cur");
+    setProgress(i / 7, `${stepNames[i-1]}...`);
+    await sleep(180 + Math.min(records.length, 500) * 2);
+    setStep(i, "done");
+  }
+  // 真实治理
+  setProgress(6/7, "聚类与决策计算...");
+  const batch_id = uid();
+  const batchInfo = {
+    batch_id,
+    filename: pendingCSV.filename,
+    encoding: pendingCSV.encoding,
+    record_count: records.length,
+    created_at: Date.now()
+  };
+  const result = runGovernance({ records });
+  STATE.mdmCounters = result.mdmCounters;
+  // 构造 mappings
+  const mappings = [];
+  for(const m of result.masters){
+    for(const rec of (m._records || [])){
+      mappings.push({
+        batch_id,
+        system_source: rec.system_source || "",
+        original_code: rec.material_code || "",
+        original_name: rec.material_name || "",
+        mdm_code: m.mdm_code,
+        standard_name: m.standard_name,
+        decision: m.decision,
+        similarity: m.confidence,
+        applied_rules: m.decision === "AUTO_MERGE" ? "R001/R005" : (m.decision === "REVIEW" ? "R006/R008" : "R007")
+      });
+    }
+  }
+  // 保存
+  await saveBatch(batchInfo, records, result.masters, mappings, result.reviews);
+  // 质量报告
+  const qr = analyzeQuality({ records });
+  const qrRecord = { batch_id, ...qr, generated_at: Date.now() };
+  await dbPut("qualityReports", qrRecord);
+  STATE.qualityReport = qrRecord;
+  // 加载到状态
+  await loadBatch(batch_id);
+  setProgress(1, records.length, "治理完成 ✓");
+  toast("治理完成", "success");
+  updateEngineStatus();
+  // 保存 MDM 计数器到 settings
+  await dbPut("settings", { key:"mdmCounters", value: STATE.mdmCounters });
+  // 显示治理卡与提示，并切换到总览页查看完整结果
+  const gs = $("#governanceSection"); if(gs) gs.style.display = "block";
+  const ie = $("#ingestEmpty"); if(ie) ie.style.display = "none";
+  switchPage("dash");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderIngestSummary(){
+  const masters = STATE.masters;
+  const reviews = STATE.reviews;
+  const records = STATE.records;
+  const el = $("#ingestSummary");
+  if(!el) return;
+  if(!masters.length){ el.innerHTML = ""; return; }
+  const autoMerge = masters.filter(m => m.decision === "AUTO_MERGE").length;
+  const reviewCount = reviews.length;
+  const newItems = masters.filter(m => m.decision === "NEW").length;
+  const compression = records.length ? ((1 - masters.length / records.length) * 100).toFixed(1) : 0;
+  const sources = new Set(records.map(r => r.system_source).filter(Boolean)).size;
+  const categories = new Set(masters.map(m => m.category)).size;
+  const batch = STATE.currentBatch;
+  el.innerHTML = `
+    <div class="card-head" style="margin-top:18px">
+      <div class="card-title"><span class="icon" style="background:rgba(16,185,129,.12);color:var(--s)">📊</span>④ 本批次治理摘要</div>
+      <div class="card-actions">
+        <button class="btn btn-success btn-sm" onclick="exportResultCSV('masters')">⬇ 主数据</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportResultCSV('mappings')">⬇ 系统映射</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportResultCSV('reviews')" ${!reviews.length?"disabled":""}>⬇ 审核清单</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportResultCSV('filled')">⬇ 智能填报</button>
+      </div>
+    </div>
+    <div style="padding:10px 14px;background:var(--bg);border-radius:8px;margin-bottom:12px;font-size:12px;color:var(--t2);display:flex;flex-wrap:wrap;gap:16px">
+      <span>📄 <strong style="color:var(--t)">${esc(batch?.filename || "")}</strong></span>
+      <span>🕒 ${esc(fmtDate(batch?.created_at || Date.now()))}</span>
+      <span>编码：${esc((batch?.encoding || "").toUpperCase())}</span>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi k-blue"><div class="kpi-emoji">📦</div><div class="kpi-label">识别主数据</div><div class="kpi-value">${fmtNum(masters.length)}</div><div class="kpi-sub">${categories} 个品类</div></div>
+      <div class="kpi k-green"><div class="kpi-emoji">✅</div><div class="kpi-label">自动合并</div><div class="kpi-value" style="color:var(--s)">${fmtNum(autoMerge)}</div><div class="kpi-sub">${masters.length?((autoMerge/masters.length)*100).toFixed(0):0}%</div></div>
+      <div class="kpi k-amber"><div class="kpi-emoji">⚠️</div><div class="kpi-label">待审核</div><div class="kpi-value" style="color:var(--w)">${fmtNum(reviewCount)}</div><div class="kpi-sub">需人工确认</div></div>
+      <div class="kpi k-violet"><div class="kpi-emoji">🆕</div><div class="kpi-label">建议新建</div><div class="kpi-value" style="color:var(--pu)">${fmtNum(newItems)}</div><div class="kpi-sub">本批次新识别</div></div>
+      <div class="kpi k-cyan"><div class="kpi-emoji">📥</div><div class="kpi-label">原始记录</div><div class="kpi-value">${fmtNum(records.length)}</div><div class="kpi-sub">${sources} 个数据源</div></div>
+      <div class="kpi k-rose"><div class="kpi-emoji">📉</div><div class="kpi-label">数据压缩率</div><div class="kpi-value">${compression}%</div><div class="kpi-sub">${records.length} → ${masters.length}</div></div>
+    </div>
+  `;
+}
+
+function renderIngestResultTable(){
+  const masters = STATE.masters;
+  const el = $("#ingestResult");
+  if(!el) return;
+  if(!masters.length){ el.innerHTML = ""; return; }
+  el.innerHTML = `
+    <div class="card-head" style="margin-top:14px">
+      <div class="card-title"><span class="icon" style="background:rgba(245,158,11,.12);color:var(--w)">📋</span>⑤ 治理结果明细（${masters.length} 条）</div>
+    </div>
+    ${renderMasterTable(masters.slice(0, 50), true)}
+  `;
+}
+
+function setStep(n, status){
+  const el = document.getElementById("step" + n);
+  if(el) el.className = "step " + status;
+}
+
+function showProgress(current, total, status){
+  const box = $("#progressBox");
+  box.classList.add("show");
+  const pct = total > 0 ? (current / total * 100) : 0;
+  $("#progressFill").style.width = pct.toFixed(1) + "%";
+  $("#progressText").textContent = pct.toFixed(0) + "%";
+  $("#progressCount").textContent = `${Math.round(current)} / ${total}`;
+  $("#progressStatus").textContent = status;
+}
+function setProgress(pct, status){
+  $("#progressFill").style.width = (pct * 100).toFixed(1) + "%";
+  $("#progressText").textContent = (pct * 100).toFixed(0) + "%";
+  $("#progressStatus").textContent = status;
+}
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+window.exportResultCSV = function(type){
+  if(!STATE.currentBatch) return toast("请先完成数据治理", "warn");
+  const bid = STATE.currentBatch.batch_id;
+  if(type === "masters"){
+    const headers = ["MDM编码","标准名称","品类","型号","品牌","口径","压力","材质","来源记录数","来源系统","置信度","编码前缀"];
+    const rows = STATE.masters.map(m => [m.mdm_code, m.standard_name, m.category, m.model, m.brand, m.dn, m.pressure, m.material, m.source_count, m.source_systems, (m.confidence*100).toFixed(2)+"%", m.code_prefix]);
+    downloadCSV("01_标准化主数据.csv", headers, rows);
+  } else if(type === "mappings"){
+    const headers = ["系统来源","原始编码","原始名称","MDM编码","标准名称","决策","相似度","应用规则"];
+    const rows = STATE.mappings.map(m => [m.system_source, m.original_code, m.original_name, m.mdm_code, m.standard_name, m.decision, (m.similarity*100).toFixed(2)+"%", m.applied_rules]);
+    downloadCSV("02_系统映射表.csv", headers, rows);
+  } else if(type === "reviews"){
+    const headers = ["MDM编码","标准名称","决策","原因","应用规则","来源记录","置信度"];
+    const rows = STATE.reviews.map(r => [r.mdm_code, r.standard_name, r.status, r.reason, r.applied_rules, r.source_records, (r.confidence*100).toFixed(2)+"%"]);
+    downloadCSV("03_人工审核清单.csv", headers, rows);
+  } else if(type === "filled"){
+    const headers = ["原始编码","系统来源","原始名称","原始描述","原始分类","单位","抽取型号","抽取品牌","抽取DN","抽取压力","抽取材质"];
+    const rows = STATE.records.map(r => {
+      const ext = r._ext || {};
+      return [r.material_code, r.system_source, r.material_name, r.description, r.category, r.unit, ext.model||"", ext.brand||"", ext.dn||"", ext.pressure||"", ext.material||""];
+    });
+    downloadCSV("04_智能填报记录.csv", headers, rows);
+  }
+};
+
+/* ===================== 渲染：检索 ===================== */
+function renderSearch(){
+  const hotWords = countHotSearchWords();
+  return `
+    <div class="page">
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(139,92,246,.12);color:var(--pu)">🔍</span>智能检索</div>
+        <p style="font-size:11px;color:var(--t3);margin-bottom:10px">基于本批次已批准与待审核主数据，结合同义词、型号、品牌、规格进行加权检索。说明：浏览器环境未集成真实 Embedding 服务，本检索为可解释的本地算法。</p>
+        <div class="input-search" style="margin-bottom:10px">
+          <input type="text" id="searchInput" class="input" placeholder="输入物料描述/型号/品牌，如：SKF 6312 深沟球轴承" onkeydown="if(event.key==='Enter')doSearch()">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btn btn-primary" onclick="doSearch()">🔍 检索</button>
+          <button class="btn btn-secondary" onclick="clearSearchHistory()">清空历史</button>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">📌 高频搜索词</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="hotWordsWrap">
+            ${hotWords.length ? hotWords.map(w => `<span class="hot-word" onclick="quickSearch('${esc(w.word)}')">${esc(w.word)} <span class="cnt">${w.count}</span></span>`).join("") : `<span style="font-size:11px;color:var(--t3)">暂无搜索历史</span>`}
+          </div>
+        </div>
+        <div id="searchResult"></div>
+      </div>
+    </div>
+  `;
+}
+
+function countHotSearchWords(){
+  const m = new Map();
+  for(const h of STATE.searchHistory){
+    const word = String(h.query || "").trim().toLowerCase();
+    if(word) m.set(word, (m.get(word) || 0) + 1);
+  }
+  return Array.from(m, ([word, count]) => ({ word, count })).sort((a,b) => b.count - a.count).slice(0, 12);
+}
+
+window.doSearch = async function(){
+  const q = $("#searchInput").value.trim();
+  if(!q){ toast("请输入检索词", "warn"); return; }
+  if(!STATE.masters.length && !STATE.reviews.length){ $("#searchResult").innerHTML = emptyState("📁","暂无主数据","请先在「批量接入」上传企业 CSV"); return; }
+  await runSearch(q);
+  await dbPut("searchHistory", { query: q, created_at: Date.now() });
+  STATE.searchHistory = await dbAll("searchHistory");
+  $("#hotWordsWrap").innerHTML = countHotSearchWords().map(w => `<span class="hot-word" onclick="quickSearch('${esc(w.word)}')">${esc(w.word)} <span class="cnt">${w.count}</span></span>`).join("");
+};
+
+window.quickSearch = function(q){ $("#searchInput").value = q; doSearch(); };
+window.clearSearchHistory = async function(){
+  if(!confirm("确定清空所有检索历史？")) return;
+  await dbClear("searchHistory");
+  STATE.searchHistory = [];
+  $("#hotWordsWrap").innerHTML = `<span style="font-size:11px;color:var(--t3)">暂无搜索历史</span>`;
+  $("#searchResult").innerHTML = "";
+  toast("已清空检索历史", "success");
+};
+
+async function runSearch(q){
+  const query = q.toLowerCase().trim();
+  const queryStd = standardizeText(query);
+  const qModel = extractModel(query);
+  const qBrand = extractBrand(query);
+  const qDN = extractDN(query);
+  const qPress = extractPressure(query);
+  const qMaterial = extractMaterial(query);
+  const candidates = STATE.masters.slice();
+  const results = [];
+  for(const m of candidates){
+    let score = 0;
+    const reasons = [];
+    const text = `${m.standard_name || ""} ${m.category || ""} ${m.model || ""} ${m.brand || ""} ${m.dn || ""} ${m.pressure || ""} ${m.material || ""}`.toLowerCase();
+    if(qModel && m.model && qModel.toUpperCase() === m.model.toUpperCase()){ score += 0.5; reasons.push("型号一致"); }
+    if(qBrand && m.brand && qBrand.toLowerCase() === m.brand.toLowerCase()){ score += 0.2; reasons.push("品牌一致"); }
+    if(qDN && m.dn && qDN === m.dn){ score += 0.15; reasons.push("口径一致"); }
+    if(qPress && m.pressure && qPress === m.pressure){ score += 0.15; reasons.push("压力一致"); }
+    if(qMaterial && m.material && qMaterial === m.material){ score += 0.15; reasons.push("材质一致"); }
+    // 关键词 + 同义词
+    const terms = queryStd.split(/\s+/).filter(Boolean);
+    for(const t of terms){
+      if(t.length < 2) continue;
+      if(text.includes(t)){ score += 0.1; }
+    }
+    // 字符 n-gram 命中
+    const stdChars = (m._ext?.standardName || `${m.standard_name}`).toLowerCase().replace(/\s+/g,"");
+    let charHits = 0;
+    for(let n=2;n<=3;n++){
+      for(let i=0;i<=queryStd.length-n;i++){
+        const g = queryStd.substring(i,i+n);
+        if(stdChars.includes(g)) charHits++;
+      }
+    }
+    if(charHits > 0){ score += Math.min(0.2, charHits * 0.005); reasons.push("字符 n-gram 命中"); }
+    if(score > 0) results.push({ m, score: Math.min(score, 0.99), reasons });
+  }
+  results.sort((a,b) => b.score - a.score);
+  const top = results.slice(0, 10);
+  if(!top.length){
+    $("#searchResult").innerHTML = emptyState("🔍","未找到相似物料","可调整关键词或在「生命周期」中创建新物料申请");
+    return;
+  }
+  $("#searchResult").innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:var(--a);margin:14px 0 10px">共 ${results.length} 条匹配，显示 Top ${top.length}</div>
+    ${top.map(r => `
+      <div class="search-hit">
+        <div class="search-hit-head">
+          <span class="search-hit-code">${esc(r.m.mdm_code)}</span>
+          <span class="search-hit-score" style="color:${r.score>=0.8?'var(--s)':r.score>=0.6?'var(--w)':'var(--t3)'}">${(r.score*100).toFixed(0)}%</span>
+        </div>
+        <div class="search-hit-name">${esc(r.m.standard_name)}</div>
+        <div class="search-hit-meta">${esc(r.m.category || "")} · ${esc(r.m.model || "-")} · ${esc(r.m.brand || "-")} · 来源 ${r.m.source_count || 0} 条</div>
+        <div class="search-hit-reason">${r.reasons.map(r => `<span class="tag tag-ok">${esc(r)}</span>`).join(" ")}</div>
+        <div style="margin-top:6px;display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="showMasterDetail('${esc(r.m.mdm_code)}')">查看详情</button>
+          ${!STATE.lifecycle.some(l => l.mdm_code === r.m.mdm_code) ? `<button class="btn btn-ghost btn-sm" onclick="createLifecycleFromSearch('${esc(r.m.standard_name)}','${esc(r.m.mdm_code)}')">📋 申请变更</button>` : ""}
+        </div>
+      </div>
+    `).join("")}
+  `;
+}
+
+window.createLifecycleFromSearch = function(name, mdmCode){
+  $("#lcName").value = name;
+  $("#lcCategory").value = "";
+  $("#lcReason").value = `针对主数据 ${mdmCode} 发起变更申请`;
+  switchPage("lifecycle");
+};
+
+/* ===================== 渲染：审核 ===================== */
+function renderReview(){
+  const reviews = STATE.reviews;
+  return `
+    <div class="page">
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(245,158,11,.12);color:var(--w)">⚠️</span>人工审核队列 <span style="font-weight:400;font-size:11px;color:var(--t3);margin-left:6px">${reviews.length} 条待处理</span></div>
+        <p style="font-size:11px;color:var(--t3);margin-bottom:12px">当组内出现属性冲突、或与已批准主数据存在模糊匹配时，系统会推送至此处。点击「查看详情」可对比来源记录差异。</p>
+        ${reviews.length ? reviews.map(r => renderReviewCard(r)).join("") : emptyState("🎉","审核队列已清空","所有低置信度匹配已处理完毕")}
+      </div>
+    </div>
+  `;
+}
+
+function renderReviewCard(r){
+  const pct = Math.round((r.confidence || 0) * 100);
+  const color = pct >= 80 ? "var(--s)" : pct >= 65 ? "var(--w)" : "var(--d)";
+  const conf = (pct/100);
+  const circumference = 2 * Math.PI * 18;
+  const offset = circumference * (1 - conf);
+  return `
+    <div class="review-card">
+      <div class="review-head">
+        <div class="review-meta">
+          <div class="review-code">${esc(r.mdm_code)}</div>
+          <div class="review-name">${esc(r.standard_name)}</div>
+          <div style="font-size:11px;color:var(--t3)">来源系统：${esc(r.source_systems || "")} · 共 ${(r.source_records||"").split(";").filter(Boolean).length} 条记录</div>
+          <div class="review-reason">⚠ ${esc(r.reason)}</div>
+          ${r.candidates && r.candidates.length ? `<div style="font-size:11px;color:var(--t2);margin-top:6px">📌 候选主数据：${r.candidates.map(c => `<span style="margin-right:6px"><code style="color:var(--a)">${esc(c.mdm_code)}</code> ${(c.score*100).toFixed(0)}%</span>`).join("")}</div>` : ""}
+        </div>
+        <div class="review-conf">
+          <div class="confidence-ring">
+            <svg width="50" height="50" viewBox="0 0 50 50"><circle class="bg" cx="25" cy="25" r="18"/><circle class="fg" cx="25" cy="25" r="18" style="stroke:${color};stroke-dasharray:${circumference};stroke-dashoffset:${offset}"/></svg>
+            <div class="txt" style="color:${color}">${pct}%</div>
+          </div>
+        </div>
+      </div>
+      <details class="review-detail">
+        <summary>查看详情与来源记录（${(r.source_records||"").split(";").filter(Boolean).length} 条）</summary>
+        ${renderReviewDetail(r)}
+      </details>
+      <div class="review-actions">
+        <button class="btn btn-success btn-sm" onclick="approveMerge('${r.id}')">✓ 合并到当前 MDM</button>
+        <button class="btn btn-warn btn-sm" onclick="approveNew('${r.id}')">🆕 创建新主数据</button>
+        <button class="btn btn-ghost btn-sm" onclick="approveSkip('${r.id}')">忽略</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderReviewDetail(r){
+  const codes = (r.source_records || "").split(";").filter(Boolean);
+  const records = STATE.records.filter(rec => codes.includes(rec.material_code || ""));
+  const ext = r._ext || {};
+  return `
+    <div class="two">
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:6px">组内属性</div>
+        <table style="font-size:11px">
+          <tr><td>品类</td><td>${esc(r.category || "")}</td></tr>
+          <tr><td>型号</td><td>${esc(ext.model || "-")}</td></tr>
+          <tr><td>品牌</td><td>${esc(ext.brand || "-")}</td></tr>
+          <tr><td>口径</td><td>${esc(ext.dn || "-")}</td></tr>
+          <tr><td>压力</td><td>${esc(ext.pressure || "-")}</td></tr>
+          <tr><td>材质</td><td>${esc(ext.material || "-")}</td></tr>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:6px">来源记录</div>
+        <div style="max-height:220px;overflow-y:auto">
+          ${records.map(rec => `<div style="padding:6px 8px;background:var(--bg);border-radius:6px;margin-bottom:4px;font-size:11px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--a);font-family:Consolas,monospace">${esc(rec.material_code||"")}</span><span class="tag tag-muted">${esc(rec.system_source||"")}</span></div>
+            <div style="color:var(--t)">${esc(rec.material_name||"")}</div>
+            <div style="color:var(--t3);font-size:10px">${esc(rec.description||"")}</div>
+          </div>`).join("") || "<div style='color:var(--t3)'>无关联记录</div>"}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+window.approveMerge = async function(reviewId){
+  const r = STATE.reviews.find(x => x.id === reviewId);
+  if(!r) return;
+  // 找到对应 master，将其改为 AUTO_MERGE
+  const master = STATE.masters.find(m => m.mdm_code === r.mdm_code);
+  if(master){
+    master.decision = "AUTO_MERGE";
+    master.confidence = 0.95;
+    master._ext = r._ext;
+    await dbPut("masters", master);
+    // 更新映射
+    for(const m of STATE.mappings){
+      if(m.mdm_code === master.mdm_code && m.batch_id === STATE.currentBatch.batch_id){
+        m.decision = "AUTO_MERGE"; m.applied_rules = "R005-审核批准";
+        await dbPut("mappings", m);
+      }
+    }
+    // 加入已批准主数据目录
+    const existsInCatalog = STATE.canonicalMasters.some(c => c.mdm_code === master.mdm_code);
+    if(!existsInCatalog){
+      const catalogItem = { ...master, approved_at: Date.now() };
+      await dbPut("canonicalMasters", catalogItem);
+      STATE.canonicalMasters.push(catalogItem);
+    }
+  }
+  r.status = "APPROVED"; r.approved_at = Date.now(); r.approved_action = "MERGE";
+  await dbPut("reviews", r);
+  STATE.reviews = STATE.reviews.filter(x => x.id !== reviewId);
+  toast("已合并到主数据 " + r.mdm_code, "success");
+  render();
+};
+window.approveNew = async function(reviewId){
+  const r = STATE.reviews.find(x => x.id === reviewId);
+  if(!r) return;
+  const master = STATE.masters.find(m => m.mdm_code === r.mdm_code);
+  if(master){
+    master.decision = "NEW";
+    master.confidence = 1.0;
+    await dbPut("masters", master);
+    for(const m of STATE.mappings){
+      if(m.mdm_code === master.mdm_code && m.batch_id === STATE.currentBatch.batch_id){
+        m.decision = "NEW"; m.applied_rules = "R007-审核批准新建";
+        await dbPut("mappings", m);
+      }
+    }
+    const existsInCatalog = STATE.canonicalMasters.some(c => c.mdm_code === master.mdm_code);
+    if(!existsInCatalog){
+      const catalogItem = { ...master, approved_at: Date.now() };
+      await dbPut("canonicalMasters", catalogItem);
+      STATE.canonicalMasters.push(catalogItem);
+    }
+  }
+  r.status = "APPROVED"; r.approved_at = Date.now(); r.approved_action = "NEW";
+  await dbPut("reviews", r);
+  STATE.reviews = STATE.reviews.filter(x => x.id !== reviewId);
+  toast("已确认为新建主数据 " + r.mdm_code, "success");
+  render();
+};
+window.approveSkip = async function(reviewId){
+  const r = STATE.reviews.find(x => x.id === reviewId);
+  if(!r) return;
+  r.status = "SKIPPED"; r.approved_at = Date.now(); r.approved_action = "SKIP";
+  await dbPut("reviews", r);
+  STATE.reviews = STATE.reviews.filter(x => x.id !== reviewId);
+  toast("已忽略该审核项", "info");
+  render();
+};
+
+/* ===================== 渲染：质量 ===================== */
+function renderQuality(){
+  const qr = STATE.qualityReport;
+  if(!qr) return `<div class="page"><div class="card">${emptyState("📊","等待数据接入","请先上传并完成治理")}</div></div>`;
+  const o = qr.overall || {completeness:0, accuracy:0, consistency:0, score:0};
+  const issues = qr.issues || [];
+  const suggestions = [...new Set(issues.map(i => i.action).filter(Boolean))];
+  const sysArr = Object.entries(qr.systems || {});
+  return `
+    <div class="page">
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(16,185,129,.12);color:var(--s)">📊</span>本批次数据质量报告</div>
+        <p style="font-size:11px;color:var(--t3);margin-bottom:14px">报告基于本批次 ${fmtNum(STATE.records.length)} 条记录、${sysArr.length} 个数据源计算。下方每一项指标均来自真实统计。</p>
+        <div class="kpi-grid">
+          <div class="kpi k-blue"><div class="kpi-emoji">📊</div><div class="kpi-label">综合评分</div><div class="kpi-value" style="color:${o.score>=80?'var(--s)':o.score>=60?'var(--w)':'var(--d)'}">${o.score}%</div><div class="kpi-sub">三项均值</div></div>
+          <div class="kpi k-green"><div class="kpi-emoji">✓</div><div class="kpi-label">完整性</div><div class="kpi-value">${o.completeness}%</div><div class="kpi-sub">必要字段非空率</div></div>
+          <div class="kpi k-amber"><div class="kpi-emoji">📝</div><div class="kpi-label">准确性</div><div class="kpi-value">${o.accuracy}%</div><div class="kpi-sub">编码+时间格式合规率</div></div>
+          <div class="kpi k-cyan"><div class="kpi-emoji">🔗</div><div class="kpi-label">一致性</div><div class="kpi-value">${o.consistency}%</div><div class="kpi-sub">同名物料字段一致</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(6,182,212,.12);color:var(--a)">🏢</span>各数据源质量评分</div>
+        <div class="q-grid">
+          ${sysArr.map(([name, sys]) => qualityCard(name, sys)).join("")}
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <div class="card-title"><span class="icon" style="background:rgba(245,158,11,.12);color:var(--w)">⚠️</span>问题清单（${issues.length}）</div>
+          ${issues.length ? `<div class="q-list">${issues.map(i => `<div class="q-item ${i.level}"><strong>[${esc(i.system)}]</strong> ${esc(i.text)}<div class="q-act">→ ${esc(i.action)}</div></div>`).join("")}</div>` : `<div style="padding:20px;color:var(--s);text-align:center;font-size:12px">未发现显著质量问题 ✓</div>`}
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon" style="background:rgba(16,185,129,.12);color:var(--s)">💡</span>整改建议</div>
+          ${suggestions.length ? `<div class="q-list">${suggestions.map(s => `<div class="q-item low">${esc(s)}</div>`).join("")}</div>` : `<div style="padding:20px;color:var(--s);text-align:center;font-size:12px">数据质量良好，无需整改 ✓</div>`}
+          <div style="margin-top:14px;display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="exportQualityReport()">📄 导出质量报告</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function qualityCard(name, sys){
+  const score = sys.score || 0;
+  const color = score >= 80 ? "var(--s)" : score >= 60 ? "var(--w)" : "var(--d)";
+  const c = 2 * Math.PI * 22, off = c * (1 - score/100);
+  return `
+    <div class="q-card">
+      <div class="q-ring">
+        <svg width="56" height="56" viewBox="0 0 56 56"><circle class="bg" cx="28" cy="28" r="22"/><circle class="fg" cx="28" cy="28" r="22" style="stroke:${color};stroke-dasharray:${c};stroke-dashoffset:${off}"/></svg>
+        <div class="txt" style="color:${color}">${score}%</div>
+      </div>
+      <div class="q-info">
+        <div class="q-name">${esc(name)} · ${sys.count || 0} 条</div>
+        <div class="q-dim">完整性 ${sys.completeness}% · 准确性 ${sys.accuracy}% · 一致性 ${sys.consistency}%</div>
+      </div>
+    </div>
+  `;
+}
+
+window.exportQualityReport = function(){
+  if(!STATE.qualityReport) return;
+  const qr = STATE.qualityReport;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>数据质量报告 - ${STATE.currentBatch?.filename || ""}</title>
+    <style>body{font-family:'Microsoft YaHei',sans-serif;padding:30px;max-width:900px;margin:0 auto;color:#222}
+    h1{color:#1a56db;border-bottom:2px solid #1a56db;padding-bottom:10px}
+    .meta{color:#666;font-size:13px;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px}
+    th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;font-size:13px}
+    th{background:#f1f5f9}
+    .score{font-size:36px;font-weight:800;color:${qr.overall?.score>=80?'#10b981':'#f59e0b'}}
+    .issue{padding:10px;border-left:3px solid #ef4444;background:#fef2f2;margin:6px 0;border-radius:4px;font-size:13px}
+    .suggest{padding:10px;border-left:3px solid #10b981;background:#f0fdf4;margin:6px 0;border-radius:4px;font-size:13px}
+    </style></head><body>
+    <h1>数据质量报告</h1>
+    <div class="meta">
+      <div>批次文件：${esc(STATE.currentBatch?.filename || "")}</div>
+      <div>生成时间：${new Date().toLocaleString("zh-CN")}</div>
+      <div>记录总数：${fmtNum(STATE.records.length)} 条 · 数据源：${Object.keys(qr.systems || {}).length} 个</div>
+    </div>
+    <h2>综合评分</h2>
+    <div class="score">${qr.overall?.score || 0}%</div>
+    <p>完整性 ${qr.overall?.completeness || 0}% · 准确性 ${qr.overall?.accuracy || 0}% · 一致性 ${qr.overall?.consistency || 0}%</p>
+    <h2>数据源评分</h2>
+    <table><tr><th>数据源</th><th>记录数</th><th>完整性</th><th>准确性</th><th>一致性</th><th>综合</th></tr>
+    ${Object.entries(qr.systems || {}).map(([n,s]) => `<tr><td>${esc(n)}</td><td>${s.count}</td><td>${s.completeness}%</td><td>${s.accuracy}%</td><td>${s.consistency}%</td><td><strong>${s.score}%</strong></td></tr>`).join("")}
+    </table>
+    <h2>问题清单</h2>
+    ${(qr.issues || []).map(i => `<div class="issue"><strong>[${esc(i.system)}]</strong> ${esc(i.text)}<br/>→ ${esc(i.action)}</div>`).join("") || "<p>无</p>"}
+    <h2>整改建议</h2>
+    ${[...new Set((qr.issues || []).map(i => i.action).filter(Boolean))].map(s => `<div class="suggest">${esc(s)}</div>`).join("") || "<p>无</p>"}
+    </body></html>`;
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "数据质量报告.html";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+/* ===================== 渲染：生命周期 ===================== */
+function renderLifecycle(){
+  const records = STATE.lifecycle.filter(l => !l.batch_id || l.batch_id === STATE.currentBatch?.batch_id);
+  const role = STATE.currentRole;
+  const roleActions = {
+    "申请人": ["lc-apply"],
+    "数据管理员": ["lc-approve"],
+    "审批人": ["lc-approve"]
+  };
+  return `
+    <div class="page">
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(139,92,246,.12);color:var(--pu)">🔄</span>主数据全生命周期管理</div>
+        <div class="role-tabs" id="roleTabs">
+          <button class="role-tab ${role==='申请人'?'on':''}" onclick="switchRole('申请人')">👤 申请人</button>
+          <button class="role-tab ${role==='数据管理员'?'on':''}" onclick="switchRole('数据管理员')">📋 数据管理员</button>
+          <button class="role-tab ${role==='审批人'?'on':''}" onclick="switchRole('审批人')">✅ 审批人</button>
+        </div>
+        <div class="lc-steps">
+          <div class="lc-step ok"><span class="num">1</span>申请</div><div class="lc-arrow">→</div>
+          <div class="lc-step"><span class="num">2</span>初审</div><div class="lc-arrow">→</div>
+          <div class="lc-step"><span class="num">3</span>审批</div><div class="lc-arrow">→</div>
+          <div class="lc-step"><span class="num">4</span>变更</div><div class="lc-arrow">→</div>
+          <div class="lc-step"><span class="num">5</span>归档</div>
+        </div>
+        <div id="lcContent">
+          ${role === "申请人" ? renderLcApply() : renderLcApprove()}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderLcApply(){
+  const records = STATE.lifecycle.filter(l => l.creator === "申请人").sort((a,b) => b.created_at - a.created_at);
+  return `
+    <div class="two">
+      <div>
+        <div class="card-title">📝 新建主数据申请</div>
+        <div class="form-row"><label class="form-label">物料名称 *</label><input type="text" class="input" id="lcName"></div>
+        <div class="form-row"><label class="form-label">品类 *</label>
+          <select class="select" id="lcCategory">
+            <option value="">请选择品类</option>
+            ${Object.keys(CATEGORY_PREFIX).map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}
+          </select>
+        </div>
+        <div class="form-row"><label class="form-label">品牌</label><input type="text" class="input" id="lcBrand"></div>
+        <div class="form-row"><label class="form-label">型号</label><input type="text" class="input" id="lcModel"></div>
+        <div class="form-row"><label class="form-label">详细描述</label><textarea class="textarea" id="lcDesc"></textarea></div>
+        <div class="form-row"><label class="form-label">申请理由 *</label><textarea class="textarea" id="lcReason"></textarea></div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="btn btn-primary" onclick="submitLifecycle()">📋 提交申请</button>
+        </div>
+      </div>
+      <div>
+        <div class="card-title">📋 我的申请记录（${records.length}）</div>
+        ${records.length ? records.slice(0,10).map(r => lifecycleCard(r)).join("") : emptyState("📋","暂无申请记录","请填写左侧表单发起申请")}
+      </div>
+    </div>
+  `;
+}
+
+function renderLcApprove(){
+  // 不同角色显示不同审批阶段
+  const role = STATE.currentRole;
+  const pending = STATE.lifecycle.filter(l => {
+    if(role === "数据管理员") return l.status === "PENDING";
+    if(role === "审批人") return l.status === "REVIEWED";
+    return false;
+  });
+  return `
+    <div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:10px">
+        您正在以 <strong style="color:var(--p)">${role}</strong> 身份查看待审批申请。
+      </div>
+      <div class="card-title">✅ 待审批列表（${pending.length}）</div>
+      ${pending.length ? pending.map(r => lifecycleCard(r, true)).join("") : emptyState("✅","暂无待审批","当前角色没有需要处理的事项")}
+      <div class="card-title" style="margin-top:14px">📋 全部申请记录</div>
+      ${STATE.lifecycle.sort((a,b) => b.created_at - a.created_at).slice(0,20).map(r => lifecycleCard(r)).join("") || emptyState("📋","暂无记录","")}
+    </div>
+  `;
+}
+
+function lifecycleCard(r, canApprove=false){
+  const statusMap = {
+    "PENDING": { tag:"tag-warn", text:"待初审" },
+    "REVIEWED": { tag:"tag-info", text:"待终审" },
+    "APPROVED": { tag:"tag-ok", text:"已批准" },
+    "REJECTED": { tag:"tag-err", text:"已退回" },
+    "ARCHIVED": { tag:"tag-muted", text:"已归档" }
+  };
+  const s = statusMap[r.status] || { tag:"tag-muted", text: r.status };
+  let actions = "";
+  if(canApprove){
+    if(r.status === "PENDING"){
+      actions = `<div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-success btn-sm" onclick="lcReview('${r.id}','REVIEWED')">✓ 初审通过</button>
+        <button class="btn btn-danger btn-sm" onclick="lcReview('${r.id}','REJECTED')">✗ 退回</button>
+      </div>`;
+    } else if(r.status === "REVIEWED"){
+      actions = `<div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-success btn-sm" onclick="lcReview('${r.id}','APPROVED')">✓ 终审批准</button>
+        <button class="btn btn-danger btn-sm" onclick="lcReview('${r.id}','REJECTED')">✗ 驳回</button>
+      </div>`;
+    }
+  }
+  if(r.status === "APPROVED"){
+    actions = `<div style="display:flex;gap:6px;margin-top:8px">
+      <button class="btn btn-warn btn-sm" onclick="lcChange('${r.id}')">📝 发起变更</button>
+      <button class="btn btn-ghost btn-sm" onclick="lcArchive('${r.id}')">📦 归档</button>
+    </div>`;
+  }
+  return `
+    <div class="review-card">
+      <div class="review-head">
+        <div class="review-meta">
+          <div class="review-code">${esc(r.request_id || r.id)} · ${esc(r.mdm_code || "")}</div>
+          <div class="review-name">${esc(r.name)}</div>
+          <div style="font-size:11px;color:var(--t3)">品类：${esc(r.category)} · 品牌：${esc(r.brand || "-")} · 型号：${esc(r.model || "-")}</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:4px">理由：${esc(r.reason || "")}</div>
+          ${r.description ? `<div style="font-size:11px;color:var(--t2);margin-top:4px">描述：${esc(r.description)}</div>` : ""}
+          <div style="font-size:10px;color:var(--t3);margin-top:4px">申请人：${esc(r.creator)} · 创建：${fmtDate(r.created_at)} ${r.reviewed_at ? `· 处理：${fmtDate(r.reviewed_at)}` : ""}</div>
+        </div>
+        <div class="review-conf"><span class="tag ${s.tag}">${s.text}</span></div>
+      </div>
+      ${actions}
+    </div>
+  `;
+}
+
+window.switchRole = function(role){
+  STATE.currentRole = role;
+  render();
+};
+
+window.submitLifecycle = async function(){
+  const name = $("#lcName").value.trim();
+  const category = $("#lcCategory").value;
+  const reason = $("#lcReason").value.trim();
+  if(!name || !category || !reason){ toast("请填写名称、品类和理由", "warn"); return; }
+  const rec = {
+    id: uid(),
+    request_id: "REQ-" + Date.now().toString(36).toUpperCase(),
+    batch_id: STATE.currentBatch?.batch_id || "",
+    mdm_code: "NEW-" + Date.now().toString(36).toUpperCase(),
+    name, category,
+    brand: $("#lcBrand").value.trim(),
+    model: $("#lcModel").value.trim(),
+    description: $("#lcDesc").value.trim(),
+    reason,
+    status: "PENDING",
+    creator: "申请人",
+    created_at: Date.now()
+  };
+  await dbPut("lifecycle", rec);
+  STATE.lifecycle.push(rec);
+  toast("申请已提交，等待初审", "success");
+  $("#lcName").value = ""; $("#lcCategory").value = ""; $("#lcBrand").value = ""; $("#lcModel").value = ""; $("#lcDesc").value = ""; $("#lcReason").value = "";
+  render();
+};
+
+window.lcReview = async function(id, action){
+  const r = STATE.lifecycle.find(x => x.id === id);
+  if(!r) return;
+  r.status = action;
+  r.reviewed_at = Date.now();
+  r.reviewer = STATE.currentRole;
+  await dbPut("lifecycle", r);
+  if(action === "APPROVED"){
+    // 加入已批准主数据目录
+    const prefix = CATEGORY_PREFIX[r.category] || "MDM-X";
+    STATE.mdmCounters[prefix] = (STATE.mdmCounters[prefix] || 0) + 1;
+    const mdmCode = `${prefix}-${String(STATE.mdmCounters[prefix]).padStart(4,"0")}`;
+    r.mdm_code = mdmCode;
+    const ext = { model: extractModel(`${r.name} ${r.description}`), brand: extractBrand(`${r.name} ${r.description}`), dn: extractDN(`${r.name} ${r.description}`), pressure: extractPressure(`${r.name} ${r.description}`), material: extractMaterial(`${r.name} ${r.description}`) };
+    const master = { mdm_code: mdmCode, standard_name: `${ext.brand||""} ${ext.model||""} ${r.category}`.trim(), category: r.category, _ext: ext, model: ext.model||"", brand: ext.brand||"", dn: ext.dn||"", pressure: ext.pressure||"", material: ext.material||"", source_count: 0, source_systems: "lifecycle", confidence: 1.0, decision: "NEW", code_prefix: prefix, source_records: r.request_id };
+    await dbPut("canonicalMasters", { ...master, approved_at: Date.now() });
+    STATE.canonicalMasters.push({ ...master, approved_at: Date.now() });
+    await dbPut("settings", { key: "mdmCounters", value: STATE.mdmCounters });
+  }
+  toast("操作完成", "success");
+  render();
+};
+
+window.lcChange = function(id){
+  const r = STATE.lifecycle.find(x => x.id === id);
+  if(!r) return;
+  const newDesc = prompt("请输入变更说明：", "根据现场反馈调整描述");
+  if(!newDesc) return;
+  const change = { id: uid(), request_id: r.request_id, batch_id: r.batch_id, mdm_code: r.mdm_code, name: r.name, category: r.category, brand: r.brand, model: r.model, description: newDesc, reason: `变更：${newDesc}`, status: "REVIEWED", creator: STATE.currentRole, created_at: Date.now(), change_of: r.request_id };
+  dbPut("lifecycle", change);
+  STATE.lifecycle.push(change);
+  toast("变更申请已提交", "success");
+  render();
+};
+
+window.lcArchive = function(id){
+  const r = STATE.lifecycle.find(x => x.id === id);
+  if(!r) return;
+  if(!confirm("确定要归档该申请吗？")) return;
+  r.status = "ARCHIVED"; r.archived_at = Date.now();
+  dbPut("lifecycle", r);
+  toast("已归档", "info");
+  render();
+};
+
+/* ===================== 渲染：分发中心 ===================== */
+function renderDistribute(){
+  const masters = STATE.masters.filter(m => m.decision === "AUTO_MERGE" || m.decision === "NEW" || m.decision === "CONFIRMED_NEW");
+  // 推荐目标系统：本批次出现的来源系统 + 用户可手动添加
+  const recordSources = [...new Set(STATE.records.map(r => r.system_source).filter(Boolean))];
+  const defaultTargets = ["SAP系统","EAM系统","采购平台","MES系统","WMS仓库"];
+  const targets = [...new Set([...recordSources, ...defaultTargets])];
+  const logs = STATE.distributionLogs.filter(l => !STATE.currentBatch || l.batch_id === STATE.currentBatch.batch_id).sort((a,b) => b.created_at - a.created_at).slice(0, 100);
+  const stats = { total: logs.length, success: logs.filter(l => l.status === "SUCCESS").length, fail: logs.filter(l => l.status === "FAILED").length, pending: logs.filter(l => l.status === "PENDING").length };
+  return `
+    <div class="page">
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(139,92,246,.12);color:var(--pu)">📤</span>跨系统分发中心 <span style="font-weight:400;font-size:11px;color:var(--t3);margin-left:6px">演示版 · 模拟分发任务登记</span></div>
+        <p style="font-size:11px;color:var(--t3);margin-bottom:14px">
+          说明：浏览器内无法直接对接真实 SAP/EAM/MES，本中心会按可解释规则模拟分发过程（成功 / 失败 / 重试），并生成目标系统的接口文件用于线下实施。所有日志保存在本机。
+        </p>
+        <div class="two">
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:10px">① 目标系统</div>
+            <div class="dist-target-list" id="distTargetList">
+              ${targets.map((t, i) => `
+                <label class="dist-target">
+                  <input type="checkbox" value="${esc(t)}" ${i < 2 ? "checked" : ""}>
+                  <span class="sys-name">${esc(t)}</span>
+                  <span class="sys-stats">${recordSources.includes(t) ? "来源系统" : "自定义"}</span>
+                </label>
+              `).join("")}
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:10px">② 分发参数</div>
+            <div class="form-row"><label class="form-label">分发模式</label>
+              <select class="select" id="distMode"><option value="FULL">全量分发（所有已批准主数据）</option><option value="INCREMENTAL">增量分发（本次新增/审核通过）</option></select>
+            </div>
+            <div class="form-row"><label class="form-label">频率（仅记录，不调度）</label>
+              <select class="select"><option>手动触发（演示版）</option></select>
+            </div>
+            <div class="form-row"><label class="form-label">本批次可选主数据</label>
+              <div style="padding:10px;background:var(--bg);border-radius:8px;font-size:12px">${masters.length} 条已批准/新建主数据可用于分发</div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px">
+              <button class="btn btn-primary" onclick="startDistribution()" ${!masters.length?"disabled":""}>📤 开始模拟分发</button>
+              <button class="btn btn-ghost" onclick="clearDistributionLogs()">清空日志</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi k-blue"><div class="kpi-emoji">📤</div><div class="kpi-label">总分发任务</div><div class="kpi-value">${fmtNum(stats.total)}</div></div>
+        <div class="kpi k-green"><div class="kpi-emoji">✅</div><div class="kpi-label">成功</div><div class="kpi-value" style="color:var(--s)">${fmtNum(stats.success)}</div></div>
+        <div class="kpi k-rose"><div class="kpi-emoji">❌</div><div class="kpi-label">失败</div><div class="kpi-value" style="color:var(--d)">${fmtNum(stats.fail)}</div></div>
+        <div class="kpi k-amber"><div class="kpi-emoji">⏳</div><div class="kpi-label">待同步</div><div class="kpi-value" style="color:var(--w)">${fmtNum(stats.pending)}</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon" style="background:rgba(16,185,129,.12);color:var(--s)">📋</span>分发日志</div>
+        ${logs.length ? logs.map(renderDistLog).join("") : emptyState("📋","暂无分发日志","请先完成治理并点击「开始模拟分发」")}
+      </div>
+    </div>
+  `;
+}
+
+function renderDistLog(l){
+  const statusMap = { SUCCESS: { dot:"ok", text:"成功", color:"var(--s)" }, FAILED: { dot:"err", text:"失败", color:"var(--d)" }, PENDING: { dot:"pending", text:"进行中", color:"var(--w)" } };
+  const s = statusMap[l.status] || statusMap.PENDING;
+  return `
+    <div class="dist-log">
+      <span class="dot ${s.dot}"></span>
+      <div class="info">
+        <code style="color:var(--a);font-weight:700">${esc(l.mdm_code || "")}</code>
+        → <strong>${esc(l.target_system || "")}</strong>
+        <span style="color:var(--t2);margin-left:6px">${esc(l.standard_name || "")}</span>
+        ${l.error_msg ? `<span style="color:var(--d);margin-left:6px">· ${esc(l.error_msg)}</span>` : ""}
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">模式：${esc(l.sync_mode || "")} · 频率：${esc(l.sync_frequency || "")}</div>
+      </div>
+      <div class="time">${fmtDate(l.created_at)}</div>
+    </div>
+  `;
+}
+
+window.startDistribution = async function(){
+  const targets = Array.from(document.querySelectorAll("#distTargetList input:checked")).map(i => i.value);
+  if(!targets.length){ toast("请至少选择一个目标系统", "warn"); return; }
+  const mode = $("#distMode").value;
+  const master = STATE.masters.filter(m => m.decision === "AUTO_MERGE" || m.decision === "NEW");
+  if(!master.length){ toast("没有可分发的已批准主数据", "warn"); return; }
+  toast("开始模拟分发...", "info");
+  const batchId = STATE.currentBatch.batch_id;
+  for(const target of targets){
+    for(const m of master){
+      // 模拟冲突：若目标系统已有同 mdm_code 但不同 standard_name → 失败
+      const existInTarget = STATE.distributionLogs.find(l => l.target_system === target && l.mdm_code === m.mdm_code && l.status === "SUCCESS");
+      let status = "SUCCESS", error = "";
+      if(existInTarget && existInTarget.standard_name !== m.standard_name){
+        status = "FAILED"; error = "目标系统已存在同编码但标准名不一致";
+      } else if(Math.random() < 0.08){
+        status = "FAILED"; error = "模拟网络超时";
+      }
+      const log = {
+        batch_id: batchId,
+        mdm_code: m.mdm_code,
+        standard_name: m.standard_name,
+        target_system: target,
+        sync_mode: mode === "FULL" ? "全量" : "增量",
+        sync_frequency: "手动触发",
+        status,
+        error_msg: error,
+        created_at: Date.now()
+      };
+      await dbPut("distributionLogs", log);
+      STATE.distributionLogs.push(log);
+    }
+  }
+  toast(`分发完成：${master.length * targets.length} 条任务`, "success");
+  render();
+};
+
+window.clearDistributionLogs = async function(){
+  if(!confirm("确定清空所有分发日志？")) return;
+  await dbClear("distributionLogs");
+  STATE.distributionLogs = [];
+  render();
+};
+
+/* ===================== SVG 图表 ===================== */
+function chartDonut(id, items){
+  const total = items.reduce((s,x) => s + x.value, 0) || 1;
+  const cx = 90, cy = 90, r = 60, ir = 42;
+  let acc = 0;
+  const gradDefs = items.map((it, i) => `<linearGradient id="grad-${id}-${i}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${it.color}" stop-opacity="0.95"/><stop offset="100%" stop-color="${it.color}" stop-opacity="0.65"/></linearGradient>`).join("");
+  const paths = items.map((it, i) => {
+    if(!it.value) return "";
+    const a0 = acc / total * Math.PI * 2 - Math.PI / 2;
+    const a1 = (acc + it.value) / total * Math.PI * 2 - Math.PI / 2;
+    acc += it.value;
+    const large = (a1 - a0) > Math.PI ? 1 : 0;
+    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
+    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    const x2 = cx + ir * Math.cos(a1), y2 = cy + ir * Math.sin(a1);
+    const x3 = cx + ir * Math.cos(a0), y3 = cy + ir * Math.sin(a0);
+    const d = `M${x0},${y0} A${r},${r} 0 ${large} 1 ${x1},${y1} L${x2},${y2} A${ir},${ir} 0 ${large} 0 ${x3},${y3} Z`;
+    return `<path d="${d}" fill="url(#grad-${id}-${i})" stroke="var(--bg2)" stroke-width="2" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,.25))"/>`;
+  }).join("");
+  return `<svg class="chart-svg" viewBox="0 0 180 180" id="${id}">
+    <defs>${gradDefs}
+      <radialGradient id="grad-${id}-center" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="var(--bg2)" stop-opacity="1"/>
+        <stop offset="100%" stop-color="var(--bg)" stop-opacity="1"/>
+      </radialGradient>
+    </defs>
+    ${paths}
+    <circle cx="${cx}" cy="${cy}" r="${ir - 2}" fill="url(#grad-${id}-center)"/>
+    <text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="var(--t2)" font-size="10">总数</text>
+    <text x="${cx}" y="${cy + 16}" text-anchor="middle" fill="var(--t)" font-size="22" font-weight="800">${total}</text>
+  </svg>
+  <div class="chart-legend">${items.map(it => `<div class="lg"><span class="lg-dot" style="background:${it.color}"></span>${esc(it.name)} <strong style="color:var(--t);margin-left:3px">${it.value}</strong> <span style="color:var(--t3)">(${total?(it.value/total*100).toFixed(0):0}%)</span></div>`).join("")}</div>`;
+}
+
+function chartBar(id, items, title, opts={}){
+  const color = opts.color || "#3b82f6";
+  if(!items.length) return `<svg class="chart-svg" viewBox="0 0 400 200"><text x="200" y="100" text-anchor="middle" fill="var(--t3)" font-size="12">暂无数据</text></svg>`;
+  const horizontal = !!opts.horizontal;
+  const max = Math.max(...items.map(i => i.value), 1);
+  const gradId = "grad-" + id;
+  if(horizontal){
+    const w = 320, rowH = 22, gap = 6, padX = 80, padY = 12;
+    const h = padY * 2 + items.length * (rowH + gap);
+    const barMax = w - padX - 60;
+    const bars = items.map((it, i) => {
+      const y = padY + i * (rowH + gap);
+      const bw = (it.value / max) * barMax;
+      return `
+        <text x="${padX - 6}" y="${y + rowH/2 + 3}" text-anchor="end" fill="var(--t2)" font-size="10">${esc((it.name || "").length > 8 ? (it.name || "").slice(0,8)+"…" : it.name)}</text>
+        <rect x="${padX}" y="${y}" width="${bw}" height="${rowH}" fill="url(#${gradId})" rx="3"/>
+        <text x="${padX + bw + 5}" y="${y + rowH/2 + 3}" fill="var(--t)" font-size="10" font-weight="700">${it.value}</text>
+      `;
+    }).join("");
+    return `<svg class="chart-svg" viewBox="0 0 ${w} ${h}" id="${id}" preserveAspectRatio="xMidYMid meet">
+      <defs><linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="${color}" stop-opacity="0.95"/><stop offset="100%" stop-color="${color}" stop-opacity="0.55"/></linearGradient></defs>
+      ${bars}
+    </svg>`;
+  } else {
+    const w = 320, h = 170, padding = { top: 18, right: 12, bottom: 28, left: 28 };
+    const innerW = w - padding.left - padding.right;
+    const innerH = h - padding.top - padding.bottom;
+    const barCount = items.length;
+    const slot = innerW / barCount;
+    const barW = slot * 0.65;
+    const gap = slot * 0.35;
+    const yTicks = 3;
+    const gridLines = Array.from({length: yTicks + 1}, (_, i) => {
+      const y = padding.top + innerH - (i / yTicks) * innerH;
+      const val = Math.round((max * i) / yTicks);
+      return `
+        <line x1="${padding.left}" y1="${y}" x2="${w - padding.right}" y2="${y}" stroke="var(--bd)" stroke-width="1" stroke-dasharray="2 3" opacity="0.5"/>
+        <text x="${padding.left - 4}" y="${y + 3}" text-anchor="end" fill="var(--t3)" font-size="9">${val}</text>
+      `;
+    }).join("");
+    const bars = items.map((it, i) => {
+      const x = padding.left + i * slot + gap/2;
+      const bh = (it.value / max) * innerH;
+      const y = padding.top + innerH - bh;
+      const label = (it.name || "").length > 6 ? (it.name || "").slice(0,6)+"…" : it.name;
+      return `
+        <defs>
+          <linearGradient id="${gradId}-${i}" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0.55"/>
+          </linearGradient>
+        </defs>
+        <rect x="${x}" y="${y}" width="${barW}" height="${bh}" fill="url(#${gradId}-${i})" rx="3" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,.2))"/>
+        <text x="${x + barW/2}" y="${y - 4}" text-anchor="middle" fill="var(--t)" font-size="10" font-weight="800">${it.value}</text>
+        <text x="${x + barW/2}" y="${h - padding.bottom + 12}" text-anchor="middle" fill="var(--t2)" font-size="9">${esc(label)}</text>
+      `;
+    }).join("");
+    return `<svg class="chart-svg" viewBox="0 0 ${w} ${h}" id="${id}" preserveAspectRatio="xMidYMid meet">
+      ${gridLines}
+      ${bars}
+    </svg>`;
+  }
+}
+
+function qualityRadarSVG(){
+  const qr = STATE.qualityReport;
+  if(!qr){ return `<svg class="chart-svg" viewBox="0 0 300 200"><text x="150" y="100" text-anchor="middle" fill="var(--t3)" font-size="12">暂无质量数据</text></svg>`; }
+  const o = qr.overall || {};
+  const dims = [
+    { name:"完整性", value: o.completeness || 0 },
+    { name:"准确性", value: o.accuracy || 0 },
+    { name:"一致性", value: o.consistency || 0 },
+    { name:"覆盖率", value: Math.min(100, STATE.masters.length * 3) },
+    { name:"及时性", value: STATE.reviews.length === 0 ? 100 : Math.max(0, 100 - STATE.reviews.length * 8) }
+  ];
+  const cx = 130, cy = 100, R = 62;
+  const angle = (i) => (i / dims.length) * Math.PI * 2 - Math.PI / 2;
+  const grids = [0.25, 0.5, 0.75, 1].map(s => {
+    const pts = dims.map((_, i) => {
+      const x = cx + R * s * Math.cos(angle(i));
+      const y = cy + R * s * Math.sin(angle(i));
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(" ");
+    return `<polygon points="${pts}" fill="none" stroke="var(--bd)" stroke-width="1" opacity="0.6"/>`;
+  }).join("");
+  const labels = dims.map((d, i) => {
+    const x = cx + (R + 12) * Math.cos(angle(i));
+    const y = cy + (R + 12) * Math.sin(angle(i));
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" fill="var(--t2)" font-size="9" font-weight="600" dy="3">${esc(d.name)}</text>`;
+  }).join("");
+  const dataPts = dims.map((d, i) => {
+    const r = R * (d.value / 100);
+    return `${(cx + r * Math.cos(angle(i))).toFixed(1)},${(cy + r * Math.sin(angle(i))).toFixed(1)}`;
+  }).join(" ");
+  const dataCircles = dims.map((d, i) => {
+    const r = R * (d.value / 100);
+    const x = cx + r * Math.cos(angle(i));
+    const y = cy + r * Math.sin(angle(i));
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#3b82f6" stroke="var(--bg)" stroke-width="2"/>`;
+  }).join("");
+  const valueLabels = dims.map((d, i) => {
+    const r = R * (d.value / 100) + 10;
+    const x = cx + r * Math.cos(angle(i));
+    const y = cy + r * Math.sin(angle(i));
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" fill="var(--pl)" font-size="9" font-weight="800" dy="3">${Math.round(d.value)}</text>`;
+  }).join("");
+  return `<svg class="chart-svg" viewBox="0 0 260 200" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <radialGradient id="grad-radar" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.45"/>
+        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.15"/>
+      </radialGradient>
+    </defs>
+    ${grids}
+    ${labels}
+    <polygon points="${dataPts}" fill="url(#grad-radar)" stroke="#3b82f6" stroke-width="2" style="filter:drop-shadow(0 1px 4px rgba(59,130,246,.4))"/>
+    ${dataCircles}
+    ${valueLabels}
+  </svg>
+  <div class="chart-legend"><div class="lg"><span class="lg-dot" style="background:#3b82f6"></span>本批次综合评分 <strong style="color:var(--t);margin-left:3px">${Math.round(o.score || 0)}%</strong></div></div>`;
+}
+
+/* ===================== 主渲染 ===================== */
+function render(){
+  const pages = {
+    dash: renderDash(),
+    kb: renderKB(),
+    ingest: renderIngest(),
+    search: renderSearch(),
+    review: renderReview(),
+    quality: renderQuality(),
+    lifecycle: renderLifecycle(),
+    distribute: renderDistribute()
+  };
+  let html = pages[STATE.currentPage] || pages.dash;
+  // 给所有 .page 加上 on class（页面切换由 app.innerHTML 重置）
+  html = html.replace(/<div class="page">/g, '<div class="page on">');
+  $("#app").innerHTML = html;
+  bindIngestZone();
+  bindIngestActions();
+}
+
+function bindIngestZone(){
+  const upZone = $("#upZone");
+  if(!upZone) return;
+  const fi = $("#csvFile");
+  fi.addEventListener("change", (e) => { if(e.target.files[0]) handleCSVFile(e.target.files[0]); });
+  upZone.addEventListener("dragover", (e) => { e.preventDefault(); upZone.classList.add("drag"); });
+  upZone.addEventListener("dragleave", () => upZone.classList.remove("drag"));
+  upZone.addEventListener("drop", (e) => {
+    e.preventDefault(); upZone.classList.remove("drag");
+    const file = e.dataTransfer.files[0];
+    if(file) handleCSVFile(file);
+  });
+}
+
+function bindIngestActions(){
+  const backBtn = $("#backToUpload");
+  if(backBtn) backBtn.addEventListener("click", () => { $("#governanceSection").style.display="none"; $("#mappingSection").style.display="none"; });
+  const applyBtn = $("#applyMappingBtn");
+  if(applyBtn) applyBtn.addEventListener("click", () => applyMappingAndGovern());
+}
+
+function switchPage(name){
+  STATE.currentPage = name;
+  $$(".tab").forEach(t => t.classList.toggle("on", t.dataset.page === name));
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  $$(".tab").forEach(t => t.addEventListener("click", () => switchPage(t.dataset.page)));
+  loadAll().then(() => render()).catch(err => { console.error(err); toast("加载本地存储失败：" + err.message, "error"); });
+});
+
+/* ===================== 数据管理工具 ===================== */
+window.exportAllBackup = async function(){
+  const data = {
+    schema: "ai-mdm-enterprise-demo-v1",
+    exported_at: new Date().toISOString(),
+    batches: await dbAll("batches"),
+    records: await dbAll("records"),
+    masters: await dbAll("masters"),
+    mappings: await dbAll("mappings"),
+    reviews: await dbAll("reviews"),
+    qualityReports: await dbAll("qualityReports"),
+    searchHistory: await dbAll("searchHistory"),
+    lifecycle: await dbAll("lifecycle"),
+    distributionLogs: await dbAll("distributionLogs"),
+    canonicalMasters: await dbAll("canonicalMasters"),
+    settings: await dbAll("settings")
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "ai-mdm-backup-" + Date.now() + ".json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("已导出完整备份", "success");
+};
+
+window.importBackup = function(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(!data.schema) throw new Error("备份文件格式无效");
+      for(const store of STORES){
+        if(!data[store]) continue;
+        await dbClear(store);
+        for(const row of data[store]) await dbPut(store, row);
+      }
+      toast("已恢复备份数据，正在刷新", "success");
+      setTimeout(() => location.reload(), 800);
+    } catch(err){
+      toast("备份恢复失败：" + err.message, "error");
+    }
+  };
+  reader.readAsText(file);
+};
+
+window.clearAllData = async function(){
+  if(!confirm("确定清空全部本地数据？此操作不可恢复。")) return;
+  if(!confirm("再次确认：将删除全部批次、主数据、审核、生命周期和分发日志。")) return;
+  for(const s of STORES) await dbClear(s);
+  STATE.currentBatch = null; STATE.records = []; STATE.masters = []; STATE.mappings = []; STATE.reviews = []; STATE.qualityReport = null; STATE.lifecycle = []; STATE.distributionLogs = []; STATE.canonicalMasters = []; STATE.searchHistory = []; STATE.mdmCounters = {};
+  updateEngineStatus();
+  render();
+  toast("已清空全部数据", "info");
+};
+
+</script>
+
+<div style="position:fixed;bottom:14px;left:14px;z-index:30;display:flex;gap:6px;flex-wrap:wrap">
+  <button class="btn btn-secondary btn-sm" onclick="exportAllBackup()">⬇ 备份</button>
+  <label class="btn btn-secondary btn-sm" style="cursor:pointer">⬆ 恢复<input type="file" accept=".json" style="display:none" onchange="importBackup(this)"></label>
+  <button class="btn btn-ghost btn-sm" onclick="clearAllData()">清空</button>
+</div>
+
+</body>
+</html>
