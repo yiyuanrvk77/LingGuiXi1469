@@ -1,19 +1,22 @@
-# 临时文件
-index_backup.html
-index_v2.html
-新建*.html
-
-# Python 临时文件
-*.py
-__pycache__/
-*.pyc
-
+# 忽略不需要的文件和文件夹
+新建文件夹/
+新建文件夹 (2)/
+个人信息扫描/
+*.lnk
+desktop.ini
+*.bat
+*.sh
+index_backup_*.html
+image_b64.txt
+temp_html.txt
+*.docx
+*.pdf
+*.zip
+*.7z
+*.rar
+# Godot 项目
+ZeroAndOne/
 # 系统文件
 .DS_Store
 Thumbs.db
-
-# 编辑器
-.vscode/
-.idea/
-*.swp
-*.swo
+ehthumbs.db
