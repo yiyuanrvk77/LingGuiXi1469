@@ -89,8 +89,8 @@
             position: relative;
         }
         .intro-card {
-            margin-left: 45%;
-            width: 55%;
+            margin-left: 50%;
+            width: 50%;
             max-width: 600px;
             background: rgba(10, 15, 26, 0.92);
             backdrop-filter: blur(20px);
@@ -1269,8 +1269,10 @@
                 const x = r * Math.sin(phi) * Math.cos(theta);
                 const y = r * Math.sin(phi) * Math.sin(theta);
                 const z = r * Math.cos(phi);
-                particlePositions[i*3] = x; particlePositions[i*3+1] = y; particlePositions[i*3+2] = z;
-                particleOriginalPositions.push({x, y, z});
+                // Shift particles to left side to overlap with character image
+                const leftOffset = -15;
+                particlePositions[i*3] = x + leftOffset; particlePositions[i*3+1] = y; particlePositions[i*3+2] = z;
+                particleOriginalPositions.push({x: x + leftOffset, y, z});
                 // Scattered: random cloud
                 const scatterR = 25;
                 particleScatteredPositions.push({
