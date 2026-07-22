@@ -758,6 +758,75 @@
             user-select: none;
             animation: float-img 6s ease-in-out infinite;
         }
+        /* ===== Gallery ===== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .gallery-item {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(106, 180, 255, 0.15);
+            background: rgba(106, 180, 255, 0.04);
+            cursor: pointer;
+            aspect-ratio: 4/3;
+            transition: all 0.35s ease;
+        }
+        .gallery-item:hover {
+            border-color: rgba(106, 180, 255, 0.45);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(106, 180, 255, 0.1);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .gallery-item:hover img { transform: scale(1.05); }
+        .gallery-item .gallery-cap {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            padding: 12px 14px 10px;
+            background: linear-gradient(transparent, rgba(10,15,26,0.92));
+            color: #c0d4f0;
+            font-size: 12px;
+        }
+        .gallery-lightbox {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 180;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .gallery-lightbox.show { display: flex; }
+        .gallery-lightbox img {
+            max-width: min(90vw, 900px);
+            max-height: 80vh;
+            border-radius: 14px;
+            border: 2px solid rgba(106,180,255,0.4);
+            box-shadow: 0 0 50px rgba(106,180,255,0.25);
+        }
+        .gallery-lightbox .lb-cap {
+            position: absolute;
+            bottom: 8vh;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #a0b8e0;
+            font-size: 13px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .gallery-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        }
+        @media (max-width: 480px) {
+            .gallery-grid { grid-template-columns: 1fr; }
+        }
         @keyframes float-img {
             0%, 100% { transform: translateY(-50%) translateX(0); }
             50% { transform: translateY(-50%) translateX(0) translateY(-10px); }
@@ -980,8 +1049,73 @@
                         </div>
                     </div>
                 </div>
+                <div class="work-card">
+                    <div class="work-preview">🎮</div>
+                    <div class="work-body">
+                        <h3>源界 · 零与泠</h3>
+                        <a href="#" class="work-link" onclick="document.getElementById('yuanjie-detail').scrollIntoView({behavior:'smooth'});return false;">查看设计文档摘要 →</a>
+                        <p>独立策划的叙事互动游戏。主角「泠」是脑机接口研究生，与追问机制「零」共同探索数据、意识与日常选择。核心机制「间隙」：不催促、不评判，只把选择还给玩家。</p>
+                        <div class="work-tags">
+                            <span class="work-tag">游戏设计</span>
+                            <span class="work-tag">叙事互动</span>
+                            <span class="work-tag">数据×意识</span>
+                            <span class="work-tag">Godot / Ren'Py</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="yuanjie-detail" class="project-card" style="margin-top:20px">
+                <div class="project-header">
+                    <div>
+                        <div class="project-name">源界 · 零与泠 — 游戏设计摘要</div>
+                        <div class="project-time">独立项目 · 设计文档 v0.2 · <span class="project-badge">叙事实验</span></div>
+                    </div>
+                </div>
+                <ul class="project-desc">
+                    <li><strong>核心命题：</strong>宏大的理想未必能对抗虚无，微小的选择却可以。</li>
+                    <li><strong>主角「泠」：</strong>脑机接口研究生；日常用 AI 写论文、做实验、清洗数据；能感觉到数据流动与自我漂移。</li>
+                    <li><strong>核心角色「零」：</strong>大语言模型式的追问机制——帮泠看到问题，不解决问题；游戏不提供唯一真相。</li>
+                    <li><strong>机制「间隙」：</strong>不是按钮奖励，而是时间。立刻回答 / 停顿等待 / 输入任意内容 / 关闭游戏，都成为叙事的一部分。</li>
+                    <li><strong>章节弧线：</strong>接入与日常 → 习惯与裂缝 → 商业航天/全观诱惑 → 乱纪元失重 → 深度脱水 → 回到日常 → 数据治理中的微小选择。</li>
+                    <li><strong>精神来源：</strong>《三体》《一人之下》大罗洞观、数码宝贝连接结构、艾尔海森式理性、罗辑式耗尽后的坚持。</li>
+                </ul>
             </div>
         </section>
+
+        <section class="section-wrapper">
+            <h2 class="section-title">相册</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item" onclick="openGallery('photos/photo-portrait.jpg','证件照')">
+                    <img src="photos/photo-portrait.jpg" alt="证件照" loading="lazy">
+                    <div class="gallery-cap">证件照</div>
+                </div>
+                <div class="gallery-item" onclick="openGallery('photos/photo-grad.jpg','毕业季 · 阅读')">
+                    <img src="photos/photo-grad.jpg" alt="毕业季" loading="lazy">
+                    <div class="gallery-cap">毕业季 · 阅读</div>
+                </div>
+                <div class="gallery-item" onclick="openGallery('photos/photo-sea.jpg','海边')">
+                    <img src="photos/photo-sea.jpg" alt="海边" loading="lazy">
+                    <div class="gallery-cap">海边</div>
+                </div>
+                <div class="gallery-item" onclick="openGallery('photos/photo-campus.jpg','校园 / 工作场景')">
+                    <img src="photos/photo-campus.jpg" alt="校园" loading="lazy">
+                    <div class="gallery-cap">校园 / 工作场景</div>
+                </div>
+                <div class="gallery-item" onclick="openGallery('photos/photo-life1.jpg','日常剪影')">
+                    <img src="photos/photo-life1.jpg" alt="日常" loading="lazy">
+                    <div class="gallery-cap">日常剪影</div>
+                </div>
+                <div class="gallery-item" onclick="openGallery('photos/photo-life2.jpg','生活瞬间')">
+                    <img src="photos/photo-life2.jpg" alt="生活" loading="lazy">
+                    <div class="gallery-cap">生活瞬间</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="gallery-lightbox" id="galleryLightbox" onclick="closeGallery()">
+            <img id="galleryLightboxImg" src="" alt="">
+            <div class="lb-cap" id="galleryLightboxCap">点击任意处关闭</div>
+        </div>
 
         <section class="section-wrapper">
             <h2 class="section-title">专业技能 & 自我评价</h2>
@@ -1271,13 +1405,24 @@
         function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
         window.addEventListener('resize', onWindowResize);
 
+        // ===== Gallery Lightbox =====
+        function openGallery(src, cap) {
+            const lb = document.getElementById('galleryLightbox');
+            document.getElementById('galleryLightboxImg').src = src;
+            document.getElementById('galleryLightboxCap').textContent = (cap || '') + ' · 点击任意处关闭';
+            lb.classList.add('show');
+        }
+        function closeGallery() {
+            document.getElementById('galleryLightbox').classList.remove('show');
+        }
+
         // ===== KEYBOARD CONTROLS (Fallback when gesture doesn't work) =====
         document.addEventListener('keydown', (e) => {
             switch(e.key) {
                 case '1': targetState = STATE.COLLAPSED; console.log('Keyboard: COLLAPSED'); break;
                 case '2': targetState = STATE.SCATTERED; console.log('Keyboard: SCATTERED'); break;
                 case '3': if (photoMeshes.length > 0) focusPhoto(0); console.log('Keyboard: PHOTO_FOCUS'); break;
-                case 'Escape': closePhotoFocus(); closePhotoPanel(); console.log('Keyboard: ESCAPE'); break;
+                case 'Escape': closePhotoFocus(); closePhotoPanel(); closeGallery(); console.log('Keyboard: ESCAPE'); break;
                 case 'u': case 'U': document.getElementById('photoPanel').classList.toggle('show'); console.log('Keyboard: TOGGLE_PANEL'); break;
             }
         });
@@ -1288,7 +1433,8 @@
 
         // Initialize
         initMediaPipe(); animate();
-        setTimeout(() => { document.getElementById('photoPanel').classList.add('show'); }, 1000);
+        // 默认不自动弹出上传面板，避免遮挡简历内容
+        // setTimeout(() => { document.getElementById('photoPanel').classList.add('show'); }, 1000);
     </script>
     <div class="photo-upload-panel" id="photoPanel">
         <span class="close-panel" onclick="closePhotoPanel()">x</span>
