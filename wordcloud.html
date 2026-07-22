@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>关键词 · 词云聚合</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: #0a0f1a;
+  color: #e8e8e8;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+#wordcloud-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: grab;
+}
+#wordcloud-container:active { cursor: grabbing; }
+#wordcloud-container.has-panel { cursor: default; }
+
+#tooltip {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+  background: rgba(15, 15, 18, 0.95);
+  border: 1px solid rgba(106, 180, 255, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  max-width: 240px;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+}
+#tooltip.show { opacity: 1; }
+#tooltip .tt-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+#tooltip .tt-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+}
+
+#detail-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  background: rgba(10, 15, 26, 0.98);
+  border-left: 1px solid rgba(106, 180, 255, 0.1);
+  z-index: 200;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  padding: 48px 36px;
+}
+#detail-panel.open { transform: translateX(0); }
+#detail-panel .dp-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(106, 180, 255, 0.2);
+  background: transparent;
+  color: rgba(106, 180, 255, 0.5);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease-out;
+}
+#detail-panel .dp-close:hover {
+  border-color: rgba(106, 180, 255, 0.5);
+  color: #6ab4ff;
+}
+#detail-panel .dp-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: rgba(106, 180, 255, 0.6);
+  border: 1px solid rgba(106, 180, 255, 0.15);
+  border-radius: 4px;
+  padding: 3px 10px;
+  margin-bottom: 20px;
+  letter-spacing: 0.08em;
+}
+#detail-panel .dp-title {
+  font-size: 32px;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 24px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+#detail-panel .dp-body {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.85;
+  margin-bottom: 36px;
+}
+#detail-panel .dp-section {
+  margin-bottom: 32px;
+}
+#detail-panel .dp-section-title {
+  font-size: 11px;
+  color: rgba(106, 180, 255, 0.4);
+  letter-spacing: 0.15em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+#detail-panel .dp-list {
+  list-style: none;
+}
+#detail-panel .dp-list li {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: color 0.15s ease-out;
+}
+#detail-panel .dp-list li:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+#detail-panel .dp-list li:last-child { border-bottom: none; }
+
+#detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 150;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-out;
+}
+#detail-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#hint {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(106, 180, 255, 0.25);
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.3s ease-out;
+}
+#hint.hidden { opacity: 0; }
+
+@media (max-width: 520px) {
+  #detail-panel { width: 100%; padding: 36px 24px; }
+  #detail-panel .dp-title { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+
+<div id="wordcloud-container"></div>
+<div id="tooltip">
+  <div class="tt-title"></div>
+  <div class="tt-desc"></div>
+</div>
+<div id="detail-overlay"></div>
+<div id="detail-panel">
+  <button class="dp-close">&times;</button>
+  <div class="dp-tag">关键词</div>
+  <div class="dp-title"></div>
+  <div class="dp-body"></div>
+  <div class="dp-section" id="dp-section-extra" style="display:none;">
+    <div class="dp-section-title">延伸阅读</div>
+    <ul class="dp-list" id="dp-list"></ul>
+  </div>
+</div>
+<div id="hint">拖拽旋转 · 悬停预览 · 点击查看详情</div>
+
+<script>
+const keywords = [
+  { text: "量子化意识", weight: 5, desc: "意识非连续流，而是以离散量子态跃迁。观测即坍缩，自我在每次选择中重新生成。", detail: "量子力学与意识的交叉地带一直是哲学和科学的前沿争议区。\"量子化意识\"不是指大脑真的在搞量子计算，而是一种隐喻：意识不是平滑的连续体，而是像能级一样离散跃迁。每一次\"观测\"——每一个决定、每一次自我审视——都让叠加态坍缩为一个确定的自我版本。", extra: ["《皇帝新脑》· 罗杰·彭罗斯", "《量子心灵》· 哈梅罗夫"] },
+  { text: "懦夫博弈", weight: 4.5, desc: "博弈论经典模型。双方对峙，先退缩者输，同归于尽最劣。偏好理性边缘的惊险策略。", detail: "懦夫博弈（Chicken Game）是博弈论中最具戏剧张力的模型之一。两辆汽车相向疾驰，谁先转向谁就是\"懦夫\"。这个模型揭示了一个残酷的真相：在完全理性的世界里，双方都应该选择转向——但现实中，承诺机制、声誉成本和风险偏好会让均衡点偏移。", extra: ["《博弈论与经济行为》· 冯·诺依曼", "《策略思维》· 迪克西特"] },
+  { text: "道藏", weight: 4, desc: "道教典籍总集。内丹、符箓、科仪的底层操作系统，偏好逆向工程古典神秘主义。", detail: "《道藏》是道教经典的总集，收录了从先秦到明代的五千余卷文献。它不是一个宗教文本，而是一个庞大的符号系统——内丹是身体炼金术，符箓是信息编码，科仪是协议规范。", extra: ["《道德经》· 老子", "《周易参同契》· 魏伯阳"] },
+  { text: "INTJ", weight: 3.5, desc: "MBTI 建筑师型人格。内向直觉思维判断，偏好系统、策略与长期规划。", detail: "INTJ 是 MBTI 十六型中最稀少的类型之一（约占总人口 2%）。核心认知功能是内倾直觉（Ni）+ 外倾思维（Te），意味着你天然地倾向于看到系统底层的模式和长期趋势。", extra: ["《天资差异》· 伊莎贝尔·迈尔斯"] },
+  { text: "喜五行金水", weight: 3, desc: "金主肃杀收敛，水主润下智藏。偏好冷感、精确、流动的能量形态。", detail: "五行不是迷信，是一套古老的分类学。金：肃杀、收敛、决断、精确。水：润下、智藏、流动、适应。金水相生：金能生水，水多金沉。这是一个收敛与流动并存的系统。", extra: ["《黄帝内经》· 素问", "《五行大义》· 萧吉"] },
+  { text: "电子乐", weight: 2.8, desc: "合成器波形构建的听觉建筑。冷色调、模块化、可编程的情绪接口。", detail: "电子乐的本质不是\"用电脑做音乐\"，而是用波形作为建筑材料。正弦波是纯净的，锯齿波是锋利的，方波是决断的。整个音乐是一个可编程的系统。", extra: ["Brian Eno · Ambient 系列", "Aphex Twin · Selected Ambient Works"] },
+  { text: "153cm", weight: 2.5, desc: "物理坐标。压缩空间中的高密度存在，低重心带来稳定的观测视角。", detail: "153cm 是一个精确的空间坐标，但它同时是一个隐喻。在物理上，低重心意味着更高的稳定性、更快的转向响应、更低的空气阻力。在人群中，这个高度让你处于大多数对话的视线下方——一个天然的观察位置。", extra: [] },
+  { text: "极简主义", weight: 2.6, desc: "不是少，而是精确。每一个保留的元素都必须承担多重功能。", detail: "极简主义不是苦行，而是一种信息论策略：在有限带宽内最大化信噪比。每一个保留的元素都必须承担多重功能——形式即内容，结构即意义。", extra: ["《少即是多》· 迪特·拉姆斯"] },
+  { text: "长期主义", weight: 2.4, desc: "偏好复利曲线而非线性回报。愿意在黑暗中等待指数增长的拐点。", detail: "长期主义不是耐心，而是对非线性回报的信任。大多数人活在线性思维里：付出一份，回报一份。但真实世界的回报曲线是 S 型的——前期几乎为零，中期缓慢爬坡，后期指数爆发。", extra: ["《思考，快与慢》· 丹尼尔·卡尼曼", "《反脆弱》· 纳西姆·塔勒布"] },
+  { text: "冷色调", weight: 1.8, desc: "视觉偏好。蓝、银、灰、黑。低色温，高对比，拒绝暖色的情绪煽动。", detail: "冷色调不是冷漠，而是一种情绪距离的管理策略。暖色直接作用于边缘系统，触发本能反应。冷色作用于前额叶皮层，维持认知清醒。你选择冷色调，是因为你希望观察者先思考，再感受。", extra: [] },
+  { text: "递归", weight: 1.5, desc: "自我引用的结构。分形、元认知、自指——系统观察自身的能力。", detail: "递归是数学中最优雅的概念之一：一个函数调用自身，一个结构包含自身，一个系统观察自身。元认知就是递归的意识——思考\"我正在思考\"。", extra: ["《哥德尔、艾舍尔、巴赫》· 侯世达"] },
+  { text: "边缘计算", weight: 1.4, desc: "不依赖中心节点，在数据源头就地处理。去中心化的信息策略。", detail: "边缘计算是分布式架构的一种：把计算能力推到数据产生的地方，而不是全部传回中心服务器。这不仅是技术策略，也是生存策略——不依赖单一中心，在本地保持独立运算能力。", extra: [] },
+  { text: "负熵", weight: 1.3, desc: "薛定谔提出的生命本质。对抗热力学第二定律，在混乱中建立秩序。", detail: "薛定谔在《生命是什么》中提出：生命的本质就是负熵——从环境中摄取秩序，来维持自身的低熵状态。你的关键词页面、你的思维方式、你的生活系统，都是负熵工程。", extra: ["《生命是什么》· 埃尔温·薛定谔", "《信息简史》· 詹姆斯·格雷克"] }
+];
+
+const container = document.getElementById('wordcloud-container');
+const tooltip = document.getElementById('tooltip');
+const ttTitle = tooltip.querySelector('.tt-title');
+const ttDesc = tooltip.querySelector('.tt-desc');
+const detailPanel = document.getElementById('detail-panel');
+const detailOverlay = document.getElementById('detail-overlay');
+const dpTitle = detailPanel.querySelector('.dp-title');
+const dpBody = detailPanel.querySelector('.dp-body');
+const dpSectionExtra = document.getElementById('dp-section-extra');
+const dpList = document.getElementById('dp-list');
+const dpClose = detailPanel.querySelector('.dp-close');
+const hint = document.getElementById('hint');
+
+let W = window.innerWidth;
+let H = window.innerHeight;
+let R = Math.min(W, H) * 0.38;
+
+const fov = 500;
+let rotationX = 0.25;
+let rotationY = 0.4;
+let autoRotateSpeed = 0.0015;
+let isDragging = false;
+let lastX = 0, lastY = 0;
+let dragVelX = 0, dragVelY = 0;
+let isPanelOpen = false;
+
+const nodes = [];
+const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+const sortedKeywords = [...keywords].sort((a, b) => b.weight - a.weight);
+
+for (let i = 0; i < sortedKeywords.length; i++) {
+  const y = 1 - (i / (sortedKeywords.length - 1)) * 2;
+  const radiusAtY = Math.sqrt(1 - y * y);
+  const theta = goldenAngle * i;
+  const weightFactor = 0.7 + (sortedKeywords[i].weight / 5) * 0.3;
+  const r = R * weightFactor;
+  const x = Math.cos(theta) * radiusAtY * r;
+  const z = Math.sin(theta) * radiusAtY * r;
+  const yp = y * r;
+
+  nodes.push({
+    x: x, y: yp, z: z,
+    baseX: x, baseY: yp, baseZ: z,
+    kw: sortedKeywords[i],
+    el: null,
+    phase: Math.random() * Math.PI * 2,
+    breathSpeed: 0.2 + Math.random() * 0.4
+  });
+}
+
+const colorPalette = [
+  '#ffffff', '#e0e4e8', '#c0c8d0', '#a0b0c0',
+  '#8098a8', '#6a8aaa', '#5a7a9a', '#4a6a8a',
+  '#8a9eb0', '#b0c0d0',
+];
+
+nodes.forEach((node, i) => {
+  const el = document.createElement('div');
+  el.textContent = node.kw.text;
+  const weightRatio = node.kw.weight / 5;
+  const fontSize = Math.round(13 + weightRatio * 28);
+  const opacity = 0.5 + weightRatio * 0.5;
+  const color = colorPalette[Math.floor(i % colorPalette.length)];
+
+  el.style.cssText = `
+    position: absolute;
+    white-space: nowrap;
+    font-weight: ${weightRatio > 0.6 ? '500' : '400'};
+    cursor: pointer;
+    user-select: none;
+    transition: filter 0.15s ease-out, text-shadow 0.15s ease-out, opacity 0.15s ease-out;
+    will-change: transform, opacity;
+    pointer-events: auto;
+    font-size: ${fontSize}px;
+    color: ${color};
+    opacity: ${opacity};
+    letter-spacing: ${weightRatio > 0.5 ? '-0.01em' : '0'};
+  `;
+
+  el.addEventListener('mouseenter', () => {
+    if (isPanelOpen) return;
+    ttTitle.textContent = node.kw.text;
+    ttDesc.textContent = node.kw.desc;
+    tooltip.classList.add('show');
+    el.style.textShadow = '0 0 16px rgba(140, 180, 220, 0.4)';
+    el.style.filter = 'brightness(1.4)';
+    el.style.opacity = '1';
+  });
+
+  el.addEventListener('mouseleave', () => {
+    tooltip.classList.remove('show');
+    el.style.textShadow = 'none';
+    el.style.filter = 'none';
+    el.style.opacity = opacity;
+  });
+
+  el.addEventListener('click', () => { openPanel(node.kw); });
+  container.appendChild(el);
+  node.el = el;
+  node.baseOpacity = opacity;
+});
+
+function openPanel(kw) {
+  isPanelOpen = true;
+  container.classList.add('has-panel');
+  hint.classList.add('hidden');
+  dpTitle.textContent = kw.text;
+  dpBody.innerHTML = kw.detail.replace(/\n/g, '<br><br>');
+  if (kw.extra && kw.extra.length > 0) {
+    dpList.innerHTML = kw.extra.map(item => '<li>' + item + '</li>').join('');
+    dpSectionExtra.style.display = 'block';
+  } else {
+    dpSectionExtra.style.display = 'none';
+  }
+  detailOverlay.classList.add('show');
+  detailPanel.classList.add('open');
+}
+
+function closePanel() {
+  isPanelOpen = false;
+  container.classList.remove('has-panel');
+  hint.classList.remove('hidden');
+  detailOverlay.classList.remove('show');
+  detailPanel.classList.remove('open');
+}
+
+dpClose.addEventListener('click', closePanel);
+detailOverlay.addEventListener('click', closePanel);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+
+function project(x, y, z) {
+  const scale = fov / (fov + z);
+  return { x: W / 2 + x * scale, y: H / 2 + y * scale, scale: scale };
+}
+
+function rotate3D(x, y, z, rx, ry) {
+  let x1 = x * Math.cos(ry) - z * Math.sin(ry);
+  let z1 = x * Math.sin(ry) + z * Math.cos(ry);
+  let y2 = y * Math.cos(rx) - z1 * Math.sin(rx);
+  let z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
+  return { x: x1, y: y2, z: z2 };
+}
+
+let time = 0;
+
+function render() {
+  time += 0.016;
+  if (!isDragging && !isPanelOpen) {
+    rotationY += autoRotateSpeed;
+    rotationX += dragVelY * 0.02;
+    rotationY += dragVelX * 0.02;
+    dragVelX *= 0.96;
+    dragVelY *= 0.96;
+  }
+
+  const projected = nodes.map(node => {
+    const breath = Math.sin(time * node.breathSpeed + node.phase) * 3;
+    const len = Math.sqrt(node.baseX * node.baseX + node.baseY * node.baseY + node.baseZ * node.baseZ);
+    node.x = node.baseX + (node.baseX / len) * breath;
+    node.y = node.baseY + (node.baseY / len) * breath;
+    node.z = node.baseZ + (node.baseZ / len) * breath;
+    const rot = rotate3D(node.x, node.y, node.z, rotationX, rotationY);
+    const proj = project(rot.x, rot.y, rot.z);
+    return { node, rot, proj };
+  });
+
+  projected.sort((a, b) => a.rot.z - b.rot.z);
+
+  projected.forEach(({ node, rot, proj }) => {
+    const el = node.el;
+    const zNorm = (rot.z + R + 30) / (2 * R + 60);
+    const depthOpacity = isPanelOpen ? (0.1 + zNorm * 0.3) : (0.2 + zNorm * 0.8);
+    const blur = (1 - zNorm) * 2;
+    el.style.transform = `translate(-50%, -50%) translate(${proj.x}px, ${proj.y}px) scale(${proj.scale})`;
+    el.style.opacity = Math.min(node.baseOpacity, depthOpacity);
+    el.style.filter = `blur(${blur}px)`;
+    el.style.zIndex = Math.round(zNorm * 100);
+  });
+
+  requestAnimationFrame(render);
+}
+
+container.addEventListener('mousedown', (e) => {
+  if (isPanelOpen) return;
+  isDragging = true;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  dragVelX = 0;
+  dragVelY = 0;
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (tooltip.classList.contains('show')) {
+    let tx = e.clientX + 16, ty = e.clientY - 10;
+    if (tx + 260 > W) tx = e.clientX - 260;
+    if (ty + 100 > H) ty = e.clientY - 100;
+    tooltip.style.left = tx + 'px';
+    tooltip.style.top = ty + 'px';
+  }
+  if (!isDragging || isPanelOpen) return;
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
+  rotationY += dx * 0.005;
+  rotationX += dy * 0.005;
+  dragVelX = dx * 0.005;
+  dragVelY = dy * 0.005;
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+
+document.addEventListener('mouseup', () => { isDragging = false; });
+
+container.addEventListener('touchstart', (e) => {
+  if (isPanelOpen) return;
+  if (e.touches.length === 1) {
+    isDragging = true;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+    dragVelX = 0;
+    dragVelY = 0;
+  }
+}, { passive: false });
+
+document.addEventListener('touchmove', (e) => {
+  if (!isDragging || isPanelOpen || e.touches.length !== 1) return;
+  e.preventDefault();
+  const dx = e.touches[0].clientX - lastX;
+  const dy = e.touches[0].clientY - lastY;
+  rotationY += dx * 0.005;
+  rotationX += dy * 0.005;
+  dragVelX = dx * 0.005;
+  dragVelY = dy * 0.005;
+  lastX = e.touches[0].clientX;
+  lastY = e.touches[0].clientY;
+}, { passive: false });
+
+document.addEventListener('touchend', () => { isDragging = false; });
+
+window.addEventListener('resize', () => {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  R = Math.min(W, H) * 0.38;
+  nodes.forEach((node, i) => {
+    const y = 1 - (i / (nodes.length - 1)) * 2;
+    const radiusAtY = Math.sqrt(1 - y * y);
+    const theta = goldenAngle * i;
+    const weightFactor = 0.7 + (node.kw.weight / 5) * 0.3;
+    const r = R * weightFactor;
+    node.baseX = Math.cos(theta) * radiusAtY * r;
+    node.baseY = y * r;
+    node.baseZ = Math.sin(theta) * radiusAtY * r;
+  });
+});
+
+render();
+</script>
+</body>
+</html>
