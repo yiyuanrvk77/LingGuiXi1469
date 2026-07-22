@@ -827,6 +827,40 @@
         @media (max-width: 480px) {
             .gallery-grid { grid-template-columns: 1fr; }
         }
+        .yuanjie-modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .yuanjie-modal.show { display: flex; }
+        .yuanjie-modal-content {
+            background: linear-gradient(135deg, rgba(10,15,26,0.98), rgba(20,30,50,0.95));
+            border: 1px solid rgba(106,180,255,0.25);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .yuanjie-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 24px;
+            color: #6a8ab8;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+        .yuanjie-close:hover { color: #e0e8ff; }
         @keyframes float-img {
             0%, 100% { transform: translateY(-50%) translateX(0); }
             50% { transform: translateY(-50%) translateX(0) translateY(-10px); }
@@ -1067,7 +1101,7 @@
                     <div class="work-preview" style="background: linear-gradient(135deg, rgba(106,180,255,0.15), rgba(139,92,246,0.1)); font-size: 36px;">🎮</div>
                     <div class="work-body">
                         <h3>源界 · 零与泠</h3>
-                        <a href="#" class="work-link" onclick="document.getElementById('yuanjie-ppt').scrollIntoView({behavior:'smooth'});return false;">查看游戏设计摘要 →</a>
+                        <a href="#" class="work-link" onclick="openYuanjiePPT();return false;">查看游戏设计摘要 →</a>
                         <p>独立策划的叙事互动游戏。主角「泠」是脑机接口研究生，与追问机制「零」共同探索数据、意识与日常选择。</p>
                         <div class="work-tags">
                             <span class="work-tag">游戏设计</span>
@@ -1079,47 +1113,46 @@
             </div>
         </section>
 
-        <!-- 源界 · PPT 风格展示 -->
-        <section class="section-wrapper" id="yuanjie-ppt">
-            <h2 class="section-title" style="font-size: 24px;">源界 · 零与泠 — 游戏设计</h2>
-            <div style="background: linear-gradient(135deg, rgba(10,15,26,0.95), rgba(20,30,50,0.9)); border: 1px solid rgba(106,180,255,0.2); border-radius: 20px; padding: 40px; position: relative; overflow: hidden;">
-                <div style="position: absolute; top: 0; right: 0; width: 200px; height: 200px; background: radial-gradient(circle, rgba(106,180,255,0.1), transparent 70%); pointer-events: none;"></div>
-                <div style="text-align: center; margin-bottom: 32px;">
-                    <div style="display: inline-block; background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.3); border-radius: 20px; padding: 4px 16px; font-size: 11px; color: #6ab4ff; letter-spacing: 2px; margin-bottom: 16px;">叙事互动游戏 · 设计文档 v0.2</div>
-                    <h3 style="font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #fff, #6ab4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">源界 · 零与泠</h3>
-                    <p style="color: #8aa8d8; font-size: 14px;">宏大的理想未必能对抗虚无，微小的选择却可以。</p>
+        <!-- 源界 · PPT 模态框 -->
+        <div class="yuanjie-modal" id="yuanjieModal" onclick="closeYuanjiePPT()">
+            <div class="yuanjie-modal-content" onclick="event.stopPropagation()">
+                <span class="yuanjie-close" onclick="closeYuanjiePPT()">×</span>
+                <div style="text-align: center; margin-bottom: 28px;">
+                    <div style="display: inline-block; background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.3); border-radius: 20px; padding: 4px 16px; font-size: 11px; color: #6ab4ff; letter-spacing: 2px; margin-bottom: 12px;">叙事互动游戏 · 设计文档 v0.2</div>
+                    <h3 style="font-size: 26px; font-weight: 700; background: linear-gradient(135deg, #fff, #6ab4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px;">源界 · 零与泠</h3>
+                    <p style="color: #8aa8d8; font-size: 13px;">宏大的理想未必能对抗虚无，微小的选择却可以。</p>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px;">
-                    <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 20px;">
-                        <div style="font-size: 12px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">核心命题</div>
-                        <p style="font-size: 13px; color: #c0d4f0; line-height: 1.7;">宏大的理想未必能对抗虚无，微小的选择却可以。</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px;">
+                    <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 11px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">核心命题</div>
+                        <p style="font-size: 12px; color: #c0d4f0; line-height: 1.6;">宏大的理想未必能对抗虚无，微小的选择却可以。</p>
                     </div>
-                    <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 20px;">
-                        <div style="font-size: 12px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">主角「泠」</div>
-                        <p style="font-size: 13px; color: #c0d4f0; line-height: 1.7;">脑机接口研究生；日常用 AI 写论文、做实验、清洗数据；能感觉到数据流动与自我漂移。</p>
+                    <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 11px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">主角「泠」</div>
+                        <p style="font-size: 12px; color: #c0d4f0; line-height: 1.6;">脑机接口研究生；日常用 AI 写论文、做实验、清洗数据；能感觉到数据流动与自我漂移。</p>
                     </div>
-                    <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 20px;">
-                        <div style="font-size: 12px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">核心角色「零」</div>
-                        <p style="font-size: 13px; color: #c0d4f0; line-height: 1.7;">大语言模型式的追问机制——帮泠看到问题，不解决问题；游戏不提供唯一真相。</p>
+                    <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 11px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">核心角色「零」</div>
+                        <p style="font-size: 12px; color: #c0d4f0; line-height: 1.6;">大语言模型式的追问机制——帮泠看到问题，不解决问题；游戏不提供唯一真相。</p>
                     </div>
-                    <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 20px;">
-                        <div style="font-size: 12px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">机制「间隙」</div>
-                        <p style="font-size: 13px; color: #c0d4f0; line-height: 1.7;">不是按钮奖励，而是时间。立刻回答 / 停顿等待 / 输入任意内容 / 关闭游戏，都成为叙事的一部分。</p>
+                    <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 11px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">机制「间隙」</div>
+                        <p style="font-size: 12px; color: #c0d4f0; line-height: 1.6;">不是按钮奖励，而是时间。立刻回答 / 停顿等待 / 输入任意内容 / 关闭游戏，都成为叙事的一部分。</p>
                     </div>
                 </div>
-                <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                    <div style="font-size: 12px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">章节弧线</div>
-                    <p style="font-size: 13px; color: #c0d4f0; line-height: 1.7;">接入与日常 → 习惯与裂缝 → 商业航天/全观诱惑 → 乱纪元失重 → 深度脱水 → 回到日常 → 数据治理中的微小选择。</p>
+                <div style="background: rgba(106,180,255,0.05); border: 1px solid rgba(106,180,255,0.15); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <div style="font-size: 11px; color: #6ab4ff; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">章节弧线</div>
+                    <p style="font-size: 12px; color: #c0d4f0; line-height: 1.6;">接入与日常 → 习惯与裂缝 → 商业航天/全观诱惑 → 乱纪元失重 → 深度脱水 → 回到日常 → 数据治理中的微小选择。</p>
                 </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 4px 12px; border-radius: 12px; font-size: 11px;">《三体》</span>
-                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 4px 12px; border-radius: 12px; font-size: 11px;">《一人之下》大罗洞观</span>
-                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 4px 12px; border-radius: 12px; font-size: 11px;">数码宝贝连接结构</span>
-                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 4px 12px; border-radius: 12px; font-size: 11px;">艾尔海森式理性</span>
-                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 4px 12px; border-radius: 12px; font-size: 11px;">罗辑式耗尽后的坚持</span>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
+                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 3px 10px; border-radius: 10px; font-size: 10px;">《三体》</span>
+                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 3px 10px; border-radius: 10px; font-size: 10px;">《一人之下》大罗洞观</span>
+                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 3px 10px; border-radius: 10px; font-size: 10px;">数码宝贝连接结构</span>
+                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 3px 10px; border-radius: 10px; font-size: 10px;">艾尔海森式理性</span>
+                    <span style="background: rgba(106,180,255,0.1); border: 1px solid rgba(106,180,255,0.2); color: #6ab4ff; padding: 3px 10px; border-radius: 10px; font-size: 10px;">罗辑式耗尽后的坚持</span>
                 </div>
             </div>
-        </section>
+        </div>
 
         <section class="section-wrapper">
             <h2 class="section-title">相册</h2>
@@ -1453,6 +1486,14 @@
         }
         function closeGallery() {
             document.getElementById('galleryLightbox').classList.remove('show');
+        }
+
+        // ===== 源界 PPT Modal =====
+        function openYuanjiePPT() {
+            document.getElementById('yuanjieModal').classList.add('show');
+        }
+        function closeYuanjiePPT() {
+            document.getElementById('yuanjieModal').classList.remove('show');
         }
 
         // ===== KEYBOARD CONTROLS (Fallback when gesture doesn't work) =====
